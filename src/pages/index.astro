@@ -1,0 +1,123 @@
+---
+import Base from "../layouts/Base.astro";
+import WorkCard from "../components/WorkCard.astro";
+import works from "../data/works.json";
+
+const sorted = [...works].sort(
+  (a, b) => Number(b.featured) - Number(a.featured) || b.year - a.year,
+);
+const allTags = [...new Set(works.flatMap((w) => w.tags))];
+---
+
+<Base title={null} description="ゲームクライアントエンジニアを志望する学生の作品ポートフォリオ">
+  <main>
+    <header class="hero container">
+      <p class="eyebrow">PORTFOLIO</p>
+      <h1>Taiga</h1>
+      <p class="role">Game Client Engineer / 信州大学 大学院</p>
+      <p class="intro">
+        コンソールゲームエンジニアを目指して制作した作品をまとめています。<br />
+        C++ / DirectX 11 でのグラフィックス実装から、Unity / C# でのゲーム開発まで。
+      </p>
+      <div class="hero-links">
+        <a class="btn btn-primary" href="https://github.com/your-name" target="_blank" rel="noopener">
+          GitHub
+        </a>
+        <a class="btn btn-ghost" href="#works">作品を見る ↓</a>
+      </div>
+      <div class="skill-strip">
+        {allTags.map((t) => <span class="tag">{t}</span>)}
+      </div>
+    </header>
+
+    <section id="works" class="container">
+      <div class="section-head">
+        <h2>Works</h2>
+        <span class="count">{works.length} projects</span>
+      </div>
+      <div class="grid">
+        {sorted.map((w) => <WorkCard work={w} />)}
+      </div>
+    </section>
+
+    <footer class="container">
+      <p>© {new Date().getFullYear()} Taiga · Built with Astro & GitHub Pages</p>
+    </footer>
+  </main>
+</Base>
+
+<style>
+  main {
+    padding-bottom: 80px;
+  }
+  .hero {
+    padding: 96px 24px 64px;
+  }
+  .eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: clamp(48px, 9vw, 84px);
+    font-weight: 700;
+    line-height: 1;
+    background: linear-gradient(120deg, #fff, var(--accent) 60%, var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 12px;
+  }
+  .role {
+    font-size: 17px;
+    color: var(--text-dim);
+    margin-bottom: 24px;
+  }
+  .intro {
+    font-size: 16px;
+    max-width: 560px;
+    margin-bottom: 32px;
+  }
+  .hero-links {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+  .skill-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+  }
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  h2 {
+    font-size: 28px;
+    font-weight: 700;
+  }
+  .count {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 22px;
+  }
+  footer {
+    margin-top: 80px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+    color: var(--text-dim);
+    font-size: 13px;
+    text-align: center;
+  }
+</style>

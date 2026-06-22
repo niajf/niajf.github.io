@@ -1,0 +1,75 @@
+[
+  {
+    "slug": "mazesurge",
+    "title": "MazeSurge",
+    "tagline": "C++ / DirectX 11 による 3D 自作デモ",
+    "description": "DirectX 11 を直接叩いて構築した 3D 描画デモ。レンダリングパイプラインの理解を深めるため、ゲームエンジンに頼らずシェーダ・行列変換・ライティングを自前で実装しました。",
+    "thumbnail": "/works/mazesurge.png",
+    "tags": ["C++", "DirectX 11", "HLSL", "3D Graphics"],
+    "highlights": [
+      "HLSL の頂点・ピクセルシェーダを自作し、基本的なライティングを実装",
+      "ビュー / プロジェクション行列の変換を理解した上で実装",
+      "ポリゴンのワインディングオーダーや座標系の罠をデバッグして解決"
+    ],
+    "repo": "https://github.com/your-name/MazeSurge",
+    "demo": "",
+    "video": "",
+    "featured": true,
+    "year": 2025
+  },
+  {
+    "slug": "unity-gravity-puzzle",
+    "title": "Gravity Puzzle",
+    "tagline": "Unity / C# 重力操作パズルゲーム",
+    "description": "重力の向きを操作してゴールを目指すパズルゲーム。設計の保守性とパフォーマンスを意識し、Input System・ScriptableObject・UniTask・オブジェクトプーリングを導入してリファクタリングを行いました。",
+    "thumbnail": "/works/gravity-puzzle.png",
+    "tags": ["Unity", "C#", "UniTask", "Input System"],
+    "highlights": [
+      "新 Input System でキーバインドを疎結合に管理",
+      "ScriptableObject でステージデータを設計し拡張しやすく",
+      "オブジェクトプーリングで GC スパイクを抑制",
+      "UniTask で非同期処理をコルーチンから置き換え"
+    ],
+    "repo": "https://github.com/your-name/UnityGravityPuzzle",
+    "demo": "",
+    "video": "",
+    "featured": true,
+    "year": 2025
+  },
+  {
+    "slug": "sfml-breakout",
+    "title": "Breakout",
+    "tagline": "C++ / SFML 製ブロック崩し",
+    "description": "SFML を用いたブロック崩し。衝突判定・状態管理・ゲームループといったゲームプログラミングの基礎を、ライブラリ最小構成で一から実装しました。",
+    "thumbnail": "/works/breakout.png",
+    "tags": ["C++", "SFML", "Game Loop"],
+    "highlights": [
+      "AABB ベースの衝突判定を自前で実装",
+      "シーン / 状態遷移を enum とステートで管理",
+      "固定タイムステップのゲームループを構築"
+    ],
+    "repo": "https://github.com/your-name/SFML_Breakout",
+    "demo": "",
+    "video": "",
+    "featured": false,
+    "year": 2024
+  },
+  {
+    "slug": "mazey",
+    "title": "Mazey!",
+    "tagline": "カジュアル協力プレイ アクションゲーム",
+    "description": "複数人で協力して迷路を攻略するカジュアルゲーム。\"Candy Pop\" カラーパレットでブランディングし、誰でもとっつきやすい体験を目指しました。",
+    "thumbnail": "/works/mazey.png",
+    "tags": ["Unity", "C#", "Co-op", "Game Design"],
+    "highlights": [
+      "協力プレイを前提にしたレベルデザイン",
+      "Candy Pop パレットによる統一感のあるビジュアルブランディング",
+      "カジュアル層向けの直感的な操作設計"
+    ],
+    "repo": "https://github.com/your-name/Mazey",
+    "demo": "",
+    "video": "",
+    "featured": false,
+    "year": 2025
+  }
+]
