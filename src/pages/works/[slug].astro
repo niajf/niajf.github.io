@@ -76,6 +76,13 @@ const thumb = work.thumbnail ? base + work.thumbnail : null;
           </a>
         )
       }
+      {
+        work.doc && (
+          <a class="btn btn-ghost" href={import.meta.env.BASE_URL.replace(/\/$/, "") + work.doc} target="_blank" rel="noopener">
+            企画書を見る
+          </a>
+        )
+      }
     </div>
   </main>
 </Base>
