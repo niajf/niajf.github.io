@@ -3,21 +3,22 @@
     "slug": "maze_surge",
     "title": "Muzui Mazui Mazey!",
     "tagline": "C++ / DirectX 11 3Dトップダウン迷路ゲーム",
-    "description": "C++ と DirectX 11 を用いて、ゲームエンジンを一切使わずにゼロから作った3Dトップダウン迷路ゲームです。 ゲームエンジンに頼らず迷路生成・衝突判定・弾丸システム・シーン管理などのゲームロジックと、 レンダリングパイプラインを自前で実装することで、3Dゲーム開発に必要な数学知識・設計知識・レンダリング知識を習得することを目的としています。",
+    "description": "C++ と DirectX 11 を用いて、開発した3Dトップダウン迷路シューティングゲームです。 迷路の自動生成・BFS による敵の経路探索・オブジェクトプーリング など、ゲームを支えるアルゴリズムとデータ構造を自前で設計・実装することに重点を置いています。 ",
     "thumbnail": "/works/maze_surge.png",
     "tags": ["C++", "DirectX 11"],
     "highlights": [
       "迷路自動生成",
       "BFS によるゴール・チェックポイント配置",
+      "BFS による敵の経路探索",
+      "敵のスポーン位置探索", 
       "AABB 衝突判定と軸分離移動",
       "オブジェクトプール−リングを用いた弾丸や敵の管理",
-      "スクリーン座標からワールド座標への変換による射撃の実装",
-      "プレイヤー追従トップダウンカメラ"
+      "スクリーン座標からワールド座標への変換による射撃の実装"
     ],
-    "repo": "https://github.com/niajf/MazeSurge",
+    "repo": "https://github.com/niajf/MazeSurge/tree/v2.x",
     "demo": "",
     "doc" : "/docs/maze_surge_gdd.pdf",
-    "video": "https://www.youtube.com/embed/-i_1Yn1c9Y8",
+    "video": "https://www.youtube.com/embed/aWsSDtPHsfg",
     "featured": true,
     "year": 2026
   },
