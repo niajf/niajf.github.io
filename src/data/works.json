@@ -41,7 +41,7 @@
       "オブジェクトプーリングを用いた弾丸の管理",
       "UniTask による非同期処理"
     ],
-    "repo": "https://github.com/niajf/UnityGravityPuzzle",
+    "repo": "https://github.com/niajf/GravityPuzzle",
     "demo": "",
     "video": "https://www.youtube.com/embed/vJH0hxEszyk",
     "featured": true,
@@ -60,7 +60,7 @@
       "スマートポインタなどの、モダンC++ (Modern C++) の活用",
       "CMakeによるクロスプラットフォーム対応"
     ],
-    "repo": "https://github.com/niajf/SFML_Breakout",
+    "repo": "https://github.com/niajf/Breakout",
     "demo": "",
     "video": "https://www.youtube.com/embed/8uhHumv2i7A",
     "featured": false,
