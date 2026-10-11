@@ -15,10 +15,10 @@
       "オブジェクトプール−リングを用いた弾丸や敵の管理",
       "スクリーン座標からワールド座標への変換による射撃の実装"
     ],
-    "repo": "https://github.com/niajf/MazeSurge/tree/v2.x",
+    "repo": "https://github.com/niajf/MazeSurge/tree/v2.1",
     "demo": "",
     "doc" : "/docs/maze_surge_gdd.pdf",
-    "video": "https://www.youtube.com/embed/aWsSDtPHsfg",
+    "video": "https://www.youtube.com/embed/D1EL0B138_0",
     "featured": true,
     "year": 2026
   },
