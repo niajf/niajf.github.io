@@ -3,16 +3,23 @@ import Base from "../layouts/Base.astro";
 import WorkCard from "../components/WorkCard.astro";
 import ExperienceCard from "../components/ExperienceCard.astro";
 import ResearchCard from "../components/ResearchCard.astro";
+import CircleCard from "../components/CircleCard.astro";
 import works from "../data/works.json";
 import experiences from "../data/experiences.json";
 import researchList from "../data/research.json";
+import circleList from "../data/circle.json";
 
 const sorted = [...works].sort(
   (a, b) => Number(b.featured) - Number(a.featured) || b.year - a.year,
 );
 const sortedResearch = [...researchList].sort((a, b) => b.year - a.year);
+const sortedCircle = [...circleList].sort((a, b) => b.year - a.year);
 const allTags = [
-  ...new Set([...works.flatMap((w) => w.tags), ...experiences.flatMap((e) => e.tags)]),
+  ...new Set([
+    ...works.flatMap((w) => w.tags),
+    ...experiences.flatMap((e) => e.tags),
+    ...circleList.flatMap((c) => c.tags),
+  ]),
 ];
 ---
 
@@ -33,6 +40,7 @@ const allTags = [
         <a class="btn btn-ghost" href="#works">作品を見る ↓</a>
         <a class="btn btn-ghost" href="#research">研究を見る ↓</a>
         <a class="btn btn-ghost" href="#experience">経験を見る ↓</a>
+        <a class="btn btn-ghost" href="#circle">サークル活動を見る ↓</a>
       </div>
       <div class="skill-strip">
         {allTags.map((t) => <span class="tag">{t}</span>)}
@@ -66,6 +74,16 @@ const allTags = [
       </div>
       <div class="grid">
         {experiences.map((e) => <ExperienceCard experience={e} />)}
+      </div>
+    </section>
+
+    <section id="circle" class="container">
+      <div class="section-head">
+        <h2>Club Activities</h2>
+        <span class="count">{circleList.length} activities</span>
+      </div>
+      <div class="grid">
+        {sortedCircle.map((c) => <CircleCard circle={c} />)}
       </div>
     </section>
 
@@ -143,7 +161,8 @@ const allTags = [
     gap: 22px;
   }
   #research,
-  #experience {
+  #experience,
+  #circle {
     margin-top: 88px;
   }
   footer {
