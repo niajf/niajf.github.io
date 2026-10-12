@@ -67,16 +67,37 @@ const REPO_NAME   = "portfolio";   // ← このリポジトリ名
 GIF も使えます。Unity の WebGL ビルドがあれば `demo` にURLを入れると
 「ブラウザでプレイ」ボタンが出ます。
 
+## 研究（学会発表）の追加・編集
+
+`src/data/research.json` に1要素追加するだけで、トップの Research 欄にカードが増え、詳細ページが自動生成されます。
+
+```jsonc
+{
+  "slug": "research-1",                // URL に使われる（半角英数字とハイフン）
+  "title": "研究タイトル",
+  "conference": "学会名",
+  "year": 2026,
+  "thumbnail": "",                     // 空ならYouTube動画のサムネイルを自動使用
+  "slides": "/research/research-1.pdf", // public/research/ に PDF を置く。空なら非表示
+  "video": "https://youtu.be/xxxx"     // YouTube のURL（共有リンク・通常URL・埋め込みURLどれでも可）。空なら非表示
+}
+```
+
 ## 構成
 
 ```
 src/
   data/works.json        ← 作品データ（ここだけ編集すればOK）
+  data/research.json     ← 研究（学会発表）データ
   layouts/Base.astro     ← 共通レイアウト・全体のデザイン
   components/WorkCard.astro
+  components/ResearchCard.astro
+  utils/youtube.js       ← YouTube URL から動画IDを取り出す
   pages/
     index.astro          ← トップ（カード一覧）
     works/[slug].astro   ← 各作品の詳細ページ（自動生成）
+    research/[slug].astro ← 各研究の詳細ページ（自動生成）
 public/works/            ← サムネイル画像
+public/research/         ← 発表スライド (PDF)
 .github/workflows/deploy.yml  ← 自動デプロイ
 ```

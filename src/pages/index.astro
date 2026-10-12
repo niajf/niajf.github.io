@@ -2,12 +2,15 @@
 import Base from "../layouts/Base.astro";
 import WorkCard from "../components/WorkCard.astro";
 import ExperienceCard from "../components/ExperienceCard.astro";
+import ResearchCard from "../components/ResearchCard.astro";
 import works from "../data/works.json";
 import experiences from "../data/experiences.json";
+import researchList from "../data/research.json";
 
 const sorted = [...works].sort(
   (a, b) => Number(b.featured) - Number(a.featured) || b.year - a.year,
 );
+const sortedResearch = [...researchList].sort((a, b) => b.year - a.year);
 const allTags = [
   ...new Set([...works.flatMap((w) => w.tags), ...experiences.flatMap((e) => e.tags)]),
 ];
@@ -28,6 +31,7 @@ const allTags = [
           GitHub
         </a>
         <a class="btn btn-ghost" href="#works">作品を見る ↓</a>
+        <a class="btn btn-ghost" href="#research">研究を見る ↓</a>
         <a class="btn btn-ghost" href="#experience">経験を見る ↓</a>
       </div>
       <div class="skill-strip">
@@ -42,6 +46,16 @@ const allTags = [
       </div>
       <div class="grid">
         {sorted.map((w) => <WorkCard work={w} />)}
+      </div>
+    </section>
+
+    <section id="research" class="container">
+      <div class="section-head">
+        <h2>Research</h2>
+        <span class="count">{researchList.length} presentations</span>
+      </div>
+      <div class="grid">
+        {sortedResearch.map((r) => <ResearchCard research={r} />)}
       </div>
     </section>
 
@@ -128,6 +142,7 @@ const allTags = [
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 22px;
   }
+  #research,
   #experience {
     margin-top: 88px;
   }
