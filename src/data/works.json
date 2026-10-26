@@ -3,18 +3,325 @@
     "slug": "maze_surge",
     "title": "Muzui Mazui Mazey!",
     "tagline": "C++ / DirectX 11 3Dトップダウン迷路ゲーム",
-    "description": "C++ と DirectX 11 を用いて、開発した3Dトップダウン迷路シューティングゲームです。 迷路の自動生成・BFS による敵の経路探索・オブジェクトプーリング など、ゲームを支えるアルゴリズムとデータ構造を自前で設計・実装することに重点を置いています。 ",
+    "description": "C++ と DirectX 11 を用いて開発した3Dトップダウン迷路シューティングゲームです。迷路の自動生成・BFS による敵の経路探索・オブジェクトプーリングなど、ゲームを支えるアルゴリズムとデータ構造を自前で設計・実装することに重点を置いています。「毎回異なる迷路でも破綻しないレベルデザイン」「敵が何体いても軽い経路探索」「ゲーム中に動的確保をしないメモリ設計」を、アルゴリズムの選択によって実現しました。",
     "thumbnail": "/works/maze_surge.png",
     "tags": ["C++", "DirectX 11"],
-    "highlights": [
-      "迷路自動生成",
-      "BFS によるゴール・チェックポイント配置",
-      "BFS による敵の経路探索",
-      "敵のスポーン位置探索", 
-      "AABB 衝突判定と軸分離移動",
-      "オブジェクトプール−リングを用いた弾丸や敵の管理",
-      "スクリーン座標からワールド座標への変換による射撃の実装"
+    "period": [
+      "v1.x：2026年5月〜2026年6月",
+      "v2：2026年9月（敵 AI の経路探索化・スポーンアルゴリズム刷新・サウンド・演出強化）"
     ],
+    "stack": [
+      { "label": "Language", "value": "C++17" },
+      { "label": "Graphics API", "value": "DirectX 11 (Direct3D 11, DXGI)" },
+      { "label": "Shader", "value": "HLSL (Shader Model 5.0)" },
+      { "label": "Math", "value": "DirectXMath" },
+      { "label": "Audio", "value": "XAudio2 + dr_mp3（MP3 デコード）" },
+      { "label": "2D UI", "value": "SpriteBatch / SpriteFont (DirectXTK)" },
+      { "label": "Build", "value": "Visual Studio 2026" },
+      { "label": "Platform", "value": "Windows" }
+    ],
+    "gameplay": {
+      "summary": "制限時間 5 分以内にランダム生成された迷路を探索し、ゴールを目指すトップダウン視点の3Dシューティング迷路ゲームです。",
+      "items": [
+        { "label": "移動", "text": "WASD でプレイヤーを移動" },
+        { "label": "射撃", "text": "左クリックでマウスカーソル方向に弾丸を発射（プレイヤーの移動慣性が弾に乗る）" },
+        { "label": "チェックポイント", "text": "迷路内の行き止まりに配置されたチェックポイントブロックを回収（スコアに影響）" },
+        { "label": "ゴール", "text": "ゴールブロックに到達するとゲームクリア" },
+        { "label": "敵", "text": "プレイヤーから離れた床セルに出現し、迷路の通路に沿って最短経路で追跡。接触で HP が 1 減少" },
+        { "label": "HP & TIME", "text": "HP の初期値は 5、制限時間は 5 分。HP が 0 になるか制限時間を超過するとゲームオーバー" },
+        { "label": "ランク", "text": "クリア時の残り時間とチェックポイント取得率の平均で S / A / B / C / D を算出" }
+      ],
+      "image": "/works/maze_surge_how_to_play.png"
+    },
+    "algorithms": {
+      "note": "計算量は迷路 N×N、敵 E 体として表記",
+      "rows": [
+        { "feature": "迷路生成", "method": "穴掘り法（スタックによる反復 DFS）", "complexity": "O(N²)", "aim": "毎回異なる完全迷路を生成、再帰によるスタックオーバーフローを回避" },
+        { "feature": "ゴール・CP 配置", "method": "BFS（最遠セル探索・行き止まり検出）", "complexity": "O(N²)", "aim": "どんな迷路でもゴールが最遠地点になり難易度を保証" },
+        { "feature": "敵の経路決定", "method": "プレイヤー起点 BFS による距離場（フローフィールド）", "complexity": "O(N²) / フレーム（E に依存しない）", "aim": "全敵が 1 回の BFS 結果を共有し、敵が増えても探索コストが増えない" },
+        { "feature": "敵のスポーン位置", "method": "円周上の角度走査 + グリッドスナップ", "complexity": "O(360/Δθ)", "aim": "壁の中に出現させず、必ずプレイヤーから一定距離に出現させる" },
+        { "feature": "弾・敵の管理", "method": "オブジェクトプール（固定長 `vector` + `active` フラグ）", "complexity": "取得 O(プールサイズ)", "aim": "ゲーム中の `new` / `delete` をゼロにしメモリ断片化を防止" },
+        { "feature": "壁との衝突", "method": "軸分離 AABB（4 隅判定）", "complexity": "O(1)", "aim": "壁沿いのスライド移動・角への引っ掛かり防止" },
+        { "feature": "難易度曲線", "method": "双曲線関数によるスポーン間隔の短縮", "complexity": "O(1)", "aim": "ゼロ割り・間隔 0 を起こさず滑らかに難易度を上昇" }
+      ]
+    },
+    "highlights": [
+      {
+        "title": "迷路自動生成（穴掘り法 / 反復 DFS）",
+        "summary": "全セルを壁で初期化し、スタックを使った深さ優先探索で「2 マス先の未訪問セル」へ壁を掘り進める穴掘り法（Recursive Backtracker）で、ゲーム開始ごとにランダムな完全迷路を生成しています。",
+        "code": [
+          {
+            "label": "Dungeon.cpp — スタックを使った反復実装",
+            "lang": "cpp",
+            "src": [
+              "std::vector<int> order = {0, 1, 2, 3, 0, 1, 2, 3}; // モジュロ演算を省くための2周配列",
+              "",
+              "while (!stk.empty())",
+              "{",
+              "    auto [nowI, nowJ] = stk.top();",
+              "    int startIndex = rand() % 4;          // ランダムな方向から探索開始",
+              "    bool all = true;",
+              "    for (int k = 0; k < 4; k++)",
+              "    {",
+              "        int newI = nowI + di[order[startIndex + k]] * 2;   // 2マス先",
+              "        int newJ = nowJ + dj[order[startIndex + k]] * 2;",
+              "        if (!(0 <= newI && newI < m_mazeSize && 0 <= newJ && newJ < m_mazeSize)) continue;",
+              "        if (m_grid[newI][newJ] == CellType::WALL)          // 未訪問なら",
+              "        {",
+              "            m_grid[nowI + di[...]][nowJ + dj[...]] = CellType::FLOOR; // 間の壁を掘る",
+              "            m_grid[newI][newJ] = CellType::FLOOR;",
+              "            stk.push({newI, newJ});",
+              "            all = false; break;",
+              "        }",
+              "    }",
+              "    if (all) stk.pop();                   // 行き止まりならバックトラック",
+              "}"
+            ]
+          }
+        ],
+        "points": [
+          "再帰ではなく明示的スタックを使うことで、迷路サイズを大きくしてもコールスタックがあふれない",
+          "奇数グリッド（31×31）の奇数座標だけを通路の節点とすることで、壁厚 1 マス・ループのない完全迷路（任意の 2 点間の経路が一意）を保証",
+          "`{0,1,2,3,0,1,2,3}` の 2 周配列で、ランダムオフセット付きの方向列挙を剰余演算なしで実現"
+        ]
+      },
+      {
+        "title": "BFS によるゴール・チェックポイント配置",
+        "summary": "迷路生成直後に、スタートを始点とした BFS を 1 回だけ実行し、「最遠セルの探索」と「行き止まりの検出」を同時に行っています。",
+        "code": [
+          {
+            "label": "Dungeon.cpp — 1 回の BFS で最遠セルと行き止まりを同時に取得",
+            "lang": "cpp",
+            "src": [
+              "while (!que.empty())",
+              "{",
+              "    auto [nowI, nowJ, nowDist] = que.front(); que.pop();",
+              "    if (distL1[nowI][nowJ] != -1) continue;       // 訪問済み",
+              "    distL1[nowI][nowJ] = nowDist;",
+              "    if (maxDist < nowDist) { maxDist = nowDist; goalGrid = {nowI, nowJ}; }",
+              "",
+              "    int freeDirCount = 0;",
+              "    for (int k = 0; k < 4; k++)",
+              "        if (/* 隣接セルが FLOOR */) { freeDirCount++; que.push({newI, newJ, nowDist + 1}); }",
+              "",
+              "    if (freeDirCount == 1) deadEnds.push_back({nowI, nowJ}); // 通路が1方向 = 行き止まり",
+              "}",
+              "m_grid[goalGrid.first][goalGrid.second] = CellType::GOAL;"
+            ]
+          }
+        ],
+        "points": [
+          "完全迷路では BFS 距離がそのまま「実際に歩く距離」になるため、ゴールが常にスタートから最も遠い通路上に置かれ、どんな迷路でも一定の探索量を保証",
+          "行き止まりをチェックポイント候補にすることで、「寄り道するほどスコアが上がる」リスク／リターンを自動で生成",
+          "BFS 訪問順の先頭 2 要素（スタート直近）の行き止まりを除外し、開始直後に取れてしまうチェックポイントを防止",
+          "候補数が足りない迷路でも `std::min` でチェックポイント数をクランプし、生成が破綻しない"
+        ]
+      },
+      {
+        "title": "敵の経路決定（BFS 距離場 / フローフィールド）",
+        "badge": "v2 で追加",
+        "summary": "v1.x では敵がプレイヤーへの直線ベクトルで移動し、壁をすり抜けて迫ってくる仕様でしたが、v2 ではプレイヤーを始点とした BFS で全床セルの「プレイヤーまでの歩行距離」を毎フレーム計算し、各敵はその距離場を下る方向へ移動するようにしました。",
+        "code": [
+          {
+            "label": "Player.cpp — プレイヤー起点の BFS で距離場（コストグリッド）を構築",
+            "lang": "cpp",
+            "src": [
+              "void Player::CalcCostGrid(const Dungeon &dungeon)",
+              "{",
+              "    m_costGrid.assign(gridSize, std::vector<int>(gridSize, -1)); // -1 = 到達不可能",
+              "    que.push({0, {playerGridZ, playerGridX}});",
+              "    while (!que.empty())",
+              "    {",
+              "        auto [cost, pos] = que.front(); que.pop();",
+              "        if (m_costGrid[pos.first][pos.second] != -1) continue;",
+              "        m_costGrid[pos.first][pos.second] = cost;",
+              "        for (int i = 0; i < 4; i++)",
+              "        {",
+              "            // 範囲外・壁を除いた4近傍を cost + 1 でキューに積む",
+              "            if (dungeon.GetGridType(nx, nz) == Dungeon::CellType::WALL) continue;",
+              "            que.push({cost + 1, {nz, nx}});",
+              "        }",
+              "    }",
+              "}"
+            ]
+          },
+          {
+            "label": "EnemyManager.cpp — 4近傍のうち最もコストが低いセルの中心へ向かう",
+            "lang": "cpp",
+            "src": [
+              "for (int i = 0; i < 4; i++)",
+              "{",
+              "    int cost = player.GetMoveCostToPlayer(nx, nz);",
+              "    if (cost == -1) continue;                    // 壁・到達不可能セル",
+              "    if (cost < minCost) { minCost = cost; ansX = nx; ansZ = nz; }",
+              "}",
+              "XMFLOAT3 fTo = dungeon.GridToWorld(ansX, ansZ);  // 次セルの中心への方向ベクトル"
+            ]
+          }
+        ],
+        "points": [
+          "経路探索を「敵ごと」ではなく「プレイヤー 1 回」で済ませる設計。敵 E 体それぞれが A* や BFS を行うと O(E·N²) だが、距離場を共有することで O(N²) + O(4E) に削減し、敵が最大 50 体に増えても探索コストは一定",
+          "各敵の判断は「4 近傍の値を見るだけ」の O(1) になり、敵が互いに独立して正しい最短経路を辿る",
+          "移動目標を隣接セルの中心にすることで、通路の角で壁に擦れず、グリッドに沿った自然な追跡になる",
+          "プレイヤーと同じセルに入った後はワールド座標の直接ベクトルに切り替え、セル内での取り逃がしを防止",
+          "到達不可能セル（`-1`）や移動先がない場合は停止させ、未定義の方向に進まないよう安全側に倒している"
+        ]
+      },
+      {
+        "title": "敵のスポーン位置探索（角度走査 + グリッドスナップ）",
+        "badge": "v2 で刷新",
+        "summary": "v1.x では迷路中心を原点とする外周の円上（迷路の外側）に出現させていましたが、敵が通路を辿るようになった v2 では通路上に出現させる必要があるため、プレイヤーを中心とする半径 R の円周上を角度走査し、最初に見つかった床セルに出現させる方式に変更しています。",
+        "code": [
+          {
+            "label": "EnemyManager.cpp — ランダムな角度から10度刻みで一周走査",
+            "lang": "cpp",
+            "src": [
+              "int degree = rand() % 360;",
+              "int startDegree = degree;",
+              "while (!isEnemyPlaced)",
+              "{",
+              "    float radian = XM_PI * degree / 180.f;",
+              "    float norm = ENEMYMANAGER_SPAWN_RADIUS * dungeon.getCellSize();",
+              "    pos.x = norm * std::cos(radian) + player.GetPosition().x;",
+              "    pos.z = norm * std::sin(radian) + player.GetPosition().z;",
+              "",
+              "    if (dungeon.IsFloor(pos)) isEnemyPlaced = true;",
+              "    else { degree += ENEMYMANAGER_DELTA_DEGREE; degree %= 360; }",
+              "",
+              "    if (degree == startDegree) break;   // 一周しても床がなければ諦める（無限ループ防止）",
+              "}",
+              "// WorldToGrid → GridToWorld で床セルの中心にスナップ"
+            ]
+          }
+        ],
+        "points": [
+          "開始角度をランダムにしつつ、失敗時は決定的に走査するため、必ず有限回で終了する",
+          "出現距離を固定半径にすることで、プレイヤーの目の前に突然湧く理不尽さを排除",
+          "出現座標をセル中心にスナップし、敵の経路追跡（隣接セル中心を目指す）と整合させている"
+        ]
+      },
+      {
+        "title": "オブジェクトプールパターン（弾丸・敵）",
+        "summary": "弾丸と敵を毎フレーム `new` / `delete` せず、`Init()` 時に固定サイズで確保したプールを `active` フラグで使い回しています。",
+        "code": [
+          {
+            "label": "ProjectilePool.cpp — 非アクティブなスロットを返す（満杯なら nullptr）",
+            "lang": "cpp",
+            "src": [
+              "Projectile *ProjectilePool::Get()",
+              "{",
+              "    for (size_t i = 0; i < m_pool.size(); i++)",
+              "        if (!m_pool[i].active) return &m_pool[i];",
+              "    return nullptr; // 上限を超えて生成しない",
+              "}"
+            ]
+          }
+        ],
+        "points": [
+          "ゲームループ中の動的メモリ確保をゼロにし、アロケーションコストとメモリ断片化を排除",
+          "要素を連続メモリ（`std::vector`）に配置するため、更新・描画ループがキャッシュフレンドリー",
+          "弾丸プール（50 発）・敵プール（50 体）を分離し、上限到達時は生成をスキップすることで最悪ケースの負荷に上限を設けている",
+          "敵・弾ともに「データのみの struct」+「ロジックを持つ Manager / Pool」に分離し、データ指向に近い構成"
+        ]
+      },
+      {
+        "title": "AABB 衝突判定と軸分離移動（壁スライド）",
+        "summary": "プレイヤーの X 軸と Z 軸の移動を独立に解決することで、壁に対するスライド移動を実現しています。",
+        "code": [
+          {
+            "label": "Player.cpp — X→Z の順に独立した壁衝突解決",
+            "lang": "cpp",
+            "src": [
+              "float newX = m_position.x + m_velVec.x * m_speed * deltaTime;",
+              "if (dungeon.IsWall(newX - HALF_SIZE, m_position.z - HALF_SIZE) || ...) newX = m_position.x;",
+              "",
+              "float newZ = m_position.z + m_velVec.z * m_speed * deltaTime;",
+              "if (dungeon.IsWall(newX - HALF_SIZE, newZ - HALF_SIZE) || ...) newZ = m_position.z;"
+            ]
+          },
+          {
+            "label": "Collision.cpp — AABB（2D）衝突判定",
+            "lang": "cpp",
+            "src": [
+              "bool Collision::checkAABB(const BBOX &box1, const BBOX &box2)",
+              "{",
+              "    return box1.minX <= box2.maxX && box1.maxX >= box2.minX &&",
+              "           box1.minZ <= box2.maxZ && box1.maxZ >= box2.minZ;",
+              "}"
+            ]
+          }
+        ],
+        "points": [
+          "壁判定はワールド座標 → グリッド座標変換による O(1) のセル参照で行い、壁の数に依存しない",
+          "バウンディングボックスの 4 隅すべてをチェックして角のめり込みを防止",
+          "Z 判定には確定後の `newX` を使うことで対角コーナーへの引っ掛かりを解消"
+        ]
+      },
+      {
+        "title": "難易度曲線と射撃の物理",
+        "summary": "経過時間に応じて敵のスポーン間隔を短縮する難易度曲線と、プレイヤーの移動を反映した弾道・照準計算を実装しています。",
+        "code": [
+          {
+            "label": "EnemyManager.cpp — 経過時間に応じてスポーン間隔を双曲線的に短縮",
+            "lang": "cpp",
+            "src": [
+              "m_spawnInterval = ENEMYMANAGER_SPAWN_INTERVAL / (1.0f + m_elapsedTime / ENEMYMANAGER_SPAWN_TIME_SCALE);"
+            ]
+          },
+          {
+            "label": "ProjectilePool.cpp — 弾の速度 = 照準方向 × 弾速 + プレイヤー速度（慣性）",
+            "lang": "cpp",
+            "src": [
+              "dir_float3_norm.x = dir.x * proj->speed + playerVel.x * playerSpeed;",
+              "dir_float3_norm.z = dir.z * proj->speed + playerVel.z * playerSpeed;"
+            ]
+          }
+        ],
+        "points": [
+          "スポーン間隔は t=0s: 3.0s → t=60s: 1.5s → t=300s: 0.5s と滑らかに短縮。分母が常に 1 以上なのでゼロ割りも間隔 0 も発生しない",
+          "弾にプレイヤーの速度ベクトルを合成し、走りながら撃ったときの弾道を物理的に自然にした（v2 で追加）",
+          "照準はマウスのスクリーン座標をニア／ファー面へ `XMVector3Unproject` で逆変換し、得られたレイと水平面のパラメトリック交差（`t = (planeY - origin.y) / dir.y`）で算出"
+        ]
+      },
+      {
+        "title": "シーン・状態管理とサウンド",
+        "badge": "v2 で拡張",
+        "points": [
+          "`GameState` を `HowToPlay → Prepare → Playing → GameClear / GameOver` に細分化し、操作説明・準備時間・リザルト演出を状態遷移として分離",
+          "リザルト画面ではタイマー駆動でテキストを段階表示し、ランクが D→S へ 1 段ずつ上がる演出と SE を同期",
+          "`SoundManager` をシングルトンで実装し、XAudio2 + dr_mp3 で BGM（ループ再生）/ SE を再生。SE は起動時に一度だけデコードしてソースボイスを再利用し、再生時のデコード・生成コストを排除（プールと同じ発想）",
+          "コピーコンストラクタ・代入演算子を `= delete` にしてシングルトンの複製を禁止"
+        ]
+      }
+    ],
+    "updates": {
+      "title": "v1.x からの変更点",
+      "items": [
+        { "label": "敵 AI", "text": "壁をすり抜ける直線追尾 → プレイヤー起点の BFS 距離場で通路に沿って追跡" },
+        { "label": "敵スポーン", "text": "迷路外周からの出現 → プレイヤー周囲の円周上の床セルに出現。無限ループ・座標ずれのバグを修正" },
+        { "label": "射撃", "text": "弾の速度にプレイヤーの移動慣性を合成" },
+        { "label": "サウンド", "text": "XAudio2 + dr_mp3 によるサウンドシステムを追加（タイトル／ゲーム／クリア／ゲームオーバー BGM、被弾・撃破・CP 取得・ボタン・ランクアップ SE、SE 音量の定数管理）" },
+        { "label": "ゲームフロー", "text": "操作説明 → 準備時間 → ゲーム開始の段階的な開始、シーン遷移直後の誤入力防止" },
+        { "label": "リザルト", "text": "フェードイン、テキストの段階表示、ランクアップ演出、ランクごとの配色" },
+        { "label": "UI", "text": "ボタンのホバー／押下状態の色変化" },
+        { "label": "調整・リファクタ", "text": "ゲーム難易度の調整、マジックナンバー・UI 定数の定数化、ランク管理を文字列から整数へ、メンバ変数の明示的初期化、インクルード整理" }
+      ]
+    },
+    "features": [
+      { "label": "迷路自動生成", "text": "穴掘り法（スタックによる反復 DFS）による 31×31 の完全迷路生成" },
+      { "label": "ゴール・CP 配置", "text": "1 回の BFS で最遠セルをゴールに、行き止まりをチェックポイントに配置" },
+      { "label": "敵の経路追跡", "text": "プレイヤー起点の BFS 距離場を全敵で共有し、4 近傍の最小コストセルへ移動" },
+      { "label": "敵スポーン", "text": "プレイヤー中心の円周を角度走査し、床セル中心にスナップして出現" },
+      { "label": "オブジェクトプール", "text": "弾丸 50 発・敵 50 体を動的確保なしで使い回し" },
+      { "label": "難易度曲線", "text": "経過時間に応じて双曲線的に短縮するスポーン間隔" },
+      { "label": "WASD 移動", "text": "X / Z 独立衝突解決による壁スライド移動" },
+      { "label": "AABB 衝突判定", "text": "プレイヤー・敵・弾丸・壁の 2D 矩形衝突判定" },
+      { "label": "射撃システム", "text": "スクリーン→ワールド逆変換による照準、プレイヤー慣性の合成" },
+      { "label": "サウンド", "text": "XAudio2 + dr_mp3 による BGM ループ再生・SE 再利用" },
+      { "label": "シーン管理", "text": "Title / HowToPlay / Prepare / Playing / GameClear / GameOver の状態遷移" },
+      { "label": "スコア / ランク", "text": "残り時間比率とチェックポイント取得率の平均で S / A / B / C / D を算出し、段階演出で表示" }
+    ],
+    "aiUsage": "DirectX 11 の描画基盤（デバイス・スワップチェイン・描画パイプラインの初期化など）や MP3 デコードなど、一部の処理で AI を使用しています。使用箇所はソースコード上のコメント（`// AI生成` / `// AIのアドバイスを元に作成`）と GitHub の README に明記しており、記載のない関数・処理は自身で実装したものです。",
     "repo": "https://github.com/niajf/MazeSurge/tree/v2.1",
     "demo": "",
     "doc" : "/docs/maze_surge_gdd.pdf",
@@ -29,17 +336,181 @@
     "description": "Unity 6 を用いて設計・開発した3D重力操作パズルゲームです。 マウスクリックで重力方向を6軸から切り替え、プレイヤーをゴールへと導くことがコンセプトです。 ゲームプレイの面白さだけでなく、拡張性・保守性を意識したアーキテクチャ設計を追求しました。",
     "thumbnail": "/works/gravity_puzzle.png",
     "tags": ["Unity", "C#"],
+    "period": "2026年2月〜2026年4月",
+    "stack": [
+      { "label": "Engine", "value": "Unity 6 (6000.0.66f2)" },
+      { "label": "Language", "value": "C#" },
+      { "label": "Physics", "value": "Unity Physics Engine" },
+      { "label": "Input", "value": "Unity Input System (New Input System)" },
+      { "label": "Async", "value": "UniTask" },
+      { "label": "UI", "value": "TextMeshPro" },
+      { "label": "Platform", "value": "Windows / macOS" }
+    ],
+    "gameplay": {
+      "items": [
+        { "label": "操作", "text": "WASD / 矢印キーで移動、マウスで視点操作" },
+        { "label": "重力変更", "text": "左クリックでプレイヤーの左方向、右クリックで右方向へ重力を切り替え" },
+        { "label": "目標", "text": "重力を操り、ステージ上のゴールエリアへ到達する" },
+        { "label": "障害", "text": "キルゾーン、ステージ外への落下、追跡ドローン" }
+      ]
+    },
     "highlights": [
-      "イベント駆動アーキテクチャ",
-      "シングルトンマネージャーによる責務分離",
-      "クォータニオンによる滑らかな姿勢制御",
-      "内積を活用した重力方向スナッピング",
-      "SphereCast によるカメラ壁抜け防止",
-      "ドローンAIの実装",
-      "Input System による入力管理",
-      "ScriptableObject によるデータ駆動設計",
-      "オブジェクトプーリングを用いた弾丸の管理",
-      "UniTask による非同期処理"
+      {
+        "title": "イベント駆動アーキテクチャ",
+        "summary": "スクリプト間の依存を最小化するために、C# の `event` を軸としたイベント駆動設計を採用しました。",
+        "code": [
+          {
+            "label": "イベントの発行元 → 購読者",
+            "lang": "text",
+            "src": [
+              "GravityManager.OnGravityChanged  →  PlayerController, UIManager, AntiGravityObject",
+              "GameFlowManager.OnGameClearOccurred / OnGameOverOccurred  →  UIManager"
+            ]
+          }
+        ],
+        "points": [
+          "重力変更の通知を `OnGravityChanged` イベントで伝播させることで、`GravityManager` が他コンポーネントの存在を知らなくてよい疎結合な設計を実現",
+          "すべての購読者は `OnDestroy()` でイベントを解除し、メモリリークを防止"
+        ]
+      },
+      {
+        "title": "シングルトンマネージャーによる責務分離",
+        "summary": "ゲームの状態・重力・サウンドを担う 3 つのシングルトンマネージャーで役割を明確に分離しています。",
+        "points": [
+          "`GravityManager` — 重力方向の一元管理、`Physics.gravity` の適用",
+          "`GameFlowManager` — `Playing` / `Cleared` / `GameOver` の状態遷移管理",
+          "`SoundManager` — BGM・SE の再生管理"
+        ]
+      },
+      {
+        "title": "クォータニオンによる滑らかな姿勢制御",
+        "summary": "重力変更時にプレイヤーが瞬時に回転するのではなく、`Quaternion.Slerp` を用いて新しい重力方向へ滑らかに姿勢を補間しています。",
+        "code": [
+          {
+            "label": "PlayerController.cs — 重力方向へ向かって毎フレーム姿勢を補正",
+            "lang": "csharp",
+            "src": [
+              "Quaternion gravityAligned = Quaternion.Slerp(",
+              "    rb.rotation,",
+              "    Quaternion.FromToRotation(transform.up, targetUpVector) * rb.rotation,",
+              "    rotateSpeed * Time.fixedDeltaTime",
+              ");",
+              "rb.MoveRotation(gravityAligned);"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "内積を活用した重力方向スナッピング",
+        "summary": "マウスで指定した方向に最も近い「6 軸の単位ベクトル」を内積で選出する設計を採用しています。浮動小数点誤差に依存せず、常に軸対称な重力方向が選ばれる安定した実装です。",
+        "code": [
+          {
+            "label": "GravityManager.cs — 最も近い軸方向を内積で決定",
+            "lang": "csharp",
+            "src": [
+              "foreach (Vector3 v in candidates)",
+              "{",
+              "    float dot = Vector3.Dot(v, newDirection);",
+              "    if (dot > maxDot) { maxDot = dot; GravityDirection = v; }",
+              "}"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "SphereCast によるカメラ壁抜け防止",
+        "summary": "サードパーソンカメラが壁に埋まることを防ぐため、`Physics.SphereCast` を用いてカメラとプレイヤーの間の障害物を検出し、衝突時には即座に・引く際は Lerp で滑らかに距離を調整しています。",
+        "code": [
+          {
+            "label": "CameraFollow.cs — 壁に近いときは即座に寄り、離れるときは滑らかに引く",
+            "lang": "csharp",
+            "src": [
+              "if (targetDistance < currentDistance)",
+              "    currentDistance = targetDistance;           // 壁に近い → 即座に寄る",
+              "else",
+              "    currentDistance = Mathf.Lerp(currentDistance, targetDistance, smoothSpeed * Time.deltaTime);"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "ドローン AI：ステートマシン × 視野判定",
+        "summary": "ドローン敵を「距離 → 視野角 → Raycast 障害物」の 3 段階フィルタで構成した視界判定システムで実装しました。",
+        "points": [
+          "距離判定：`magnitude` で索敵範囲外を早期リターン",
+          "視野角判定：`Vector3.Angle` で前方 FOV の外をカット",
+          "障害物判定：`Physics.Raycast` で遮蔽物を考慮した視線チェック",
+          "Inspector 上でデバッグしやすいよう、`OnDrawGizmosSelected` で視界範囲・視野角をエディタ上にリアルタイムで可視化"
+        ]
+      },
+      {
+        "title": "UnityEvent による柔軟なトリガー設計",
+        "summary": "`PressureSwitch` はドアの開閉ロジックを直接持たず、`UnityEvent`（`onActivate` / `onDeactivate`）を Inspector でワイヤリングする設計にしました。コードを変更せずにレベルデザイナーが任意のアクションをバインドできます。"
+      },
+      {
+        "title": "Input System による入力管理",
+        "summary": "旧 Input Manager から Unity 6 標準の Input System へ完全移行しました。Input Action Asset でアクションを定義し、キーバインドをデータとして管理する設計に変更したことで、ゲームパッドやタッチ入力への拡張が容易なアーキテクチャになっています。",
+        "code": [
+          {
+            "label": "アクションと利用コンポーネント",
+            "lang": "text",
+            "src": [
+              "InputManager (Singleton)",
+              "  └── PlayerInputActions (Action Asset)",
+              "        ├── Player/Move       → PlayerController, CameraFollow",
+              "        ├── Player/Look       → PlayerController, CameraFollow",
+              "        ├── Player/ToggleZoom → CameraFollow",
+              "        └── Player/LeftGravity / RightGravity → GravityManager"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "ScriptableObject によるデータ駆動設計",
+        "summary": "ドローン AI・プレイヤー・ステージの各パラメータを ScriptableObject に分離し、コード変更なしに Inspector 上でバランス調整が可能な設計を実現しました。",
+        "points": [
+          "`DroneConfig` — 移動速度・視野角・索敵距離・攻撃間隔など",
+          "`PlayerConfig` — 移動速度・回転速度・カメラ距離・感度など"
+        ]
+      },
+      {
+        "title": "オブジェクトプーリング",
+        "summary": "ドローンが射出する弾に Unity 標準の `ObjectPool<T>` を適用し、Instantiate / Destroy による GC アロケーションを排除しました。",
+        "points": [
+          "`ProjectilePool` が生成・取得・返却を一元管理し、`Projectile` 側はプールの実装を意識しない設計"
+        ]
+      },
+      {
+        "title": "UniTask による非同期処理",
+        "summary": "シーン遷移・フェード演出を UniTask の async/await で実装し、コルーチンと比較してゼロアロケーションかつ堅牢なエラーハンドリングを実現しました。",
+        "code": [
+          {
+            "label": "TitleManager.cs — destroyCancellationToken でオブジェクト破棄時に自動キャンセル",
+            "lang": "csharp",
+            "src": [
+              "await CanvasGroupFader.FadeAsync(fader, 0f, 1f, 1f, destroyCancellationToken);",
+              "await SceneManager.LoadSceneAsync(nextSceneIndex);"
+            ]
+          }
+        ],
+        "points": [
+          "`destroyCancellationToken` でオブジェクトのライフサイクルに連動したキャンセルを実現",
+          "フェード中のシーン破棄でも `MissingReferenceException` が発生しない安全な実装"
+        ]
+      }
+    ],
+    "features": [
+      { "label": "重力操作システム", "text": "6 方向への重力切り替えと物理演算への即時反映" },
+      { "label": "姿勢補間", "text": "重力変更に連動したプレイヤーの滑らかな回転" },
+      { "label": "サードパーソンカメラ", "text": "SphereCast による壁抜け防止・縦横マウス操作" },
+      { "label": "ドローン敵 AI", "text": "3 段階の視界判定と Idle / Chase ステートマシン" },
+      { "label": "弾のオブジェクトプール", "text": "GC アロケーションゼロの射撃システム" },
+      { "label": "ステージギミック", "text": "圧力スイッチ連動ドア（Lerp アニメーション）" },
+      { "label": "ゴール・死亡判定", "text": "コライダートリガーによるゲーム状態遷移" },
+      { "label": "HUD", "text": "TextMeshPro による重力方向表示・クリアタイム計測" },
+      { "label": "タイトル画面", "text": "UniTask フェードイン、浮遊アニメーション演出" },
+      { "label": "Input System", "text": "Action Asset によるキーバインド管理・ゲームパッド対応可能な設計" },
+      { "label": "ScriptableObject", "text": "Inspector からコード変更なしにパラメータ調整可能" }
     ],
     "repo": "https://github.com/niajf/GravityPuzzle",
     "demo": "",
@@ -51,14 +522,55 @@
     "slug": "sfml-breakout",
     "title": "Breakout",
     "tagline": "C++ / SFML 製ブロック崩し",
-    "description": "C++ とSFML を用いてゼロから設計・開発したブロック崩しゲームです。 ゲームエンジンの機能に頼らず、メモリ管理、シーン遷移、衝突判定などのゲームループの基盤を自作することで、低レイヤーの設計能力とモダンC++のコーディングスキルを習得することを目的としています。",
+    "description": "C++17 と SFML 3.0 を用いてゼロから設計・開発したブロック崩しゲームです。 ゲームエンジンの機能に頼らず、メモリ管理、シーン遷移、衝突判定などのゲームループの基盤を自作することで、低レイヤーの設計能力とモダンC++のコーディングスキルを習得することを目的としています。",
     "thumbnail": "/works/breakout.png",
     "tags": ["C++", "SFML"],
+    "period": "2026年2月",
+    "stack": [
+      { "label": "Language", "value": "C++17" },
+      { "label": "Library", "value": "SFML (Simple and Fast Multimedia Library) 3.0.0" },
+      { "label": "Build System", "value": "CMake（FetchContent による依存関係の自動解決）" },
+      { "label": "IDE", "value": "VS Code" },
+      { "label": "Platform", "value": "macOS / Windows / Linux" }
+    ],
     "highlights": [
-      "シーン管理システムの実装",
-      "物理演算とゲームロジックの分離した設計",
-      "スマートポインタなどの、モダンC++ (Modern C++) の活用",
-      "CMakeによるクロスプラットフォーム対応"
+      {
+        "title": "シーン管理システム（State パターン）",
+        "summary": "`Scene` 基底クラスを継承した `TitleScene`・`GameScene`・`GameClearScene` を作成し、ステートパターンを用いてゲームの進行を管理しています。",
+        "points": [
+          "各シーンは疎結合に保たれ、`std::function` コールバックを通じてのみ遷移を行う",
+          "新しいシーン（設定画面など）の追加が容易"
+        ]
+      },
+      {
+        "title": "物理演算とゲームロジックの分離",
+        "summary": "衝突判定を行う `CollisionManager` は物理的な計算のみを担当し、スコア加算などのゲームルールには関与しません。",
+        "points": [
+          "物理演算の結果（衝突したブロック数など）を返し、それを受け取った `GameScene` がスコアを更新する設計",
+          "物理挙動のバグとゲームルールのバグを切り分けてデバッグ可能"
+        ]
+      },
+      {
+        "title": "モダン C++ の活用",
+        "summary": "生のポインタの使用を避け、スマートポインタ（`std::unique_ptr`）による所有権の明確化と RAII イディオムを徹底しています。",
+        "points": [
+          "メモリリークのリスクを排除し、安全なリソース管理を実現",
+          "コンパイル時定数（`constexpr`）を活用し、マジックナンバーを排除した設定管理"
+        ]
+      },
+      {
+        "title": "CMake によるクロスプラットフォーム対応",
+        "summary": "`FetchContent` を使用して SFML ライブラリをビルド時に自動ダウンロード・リンクする構成にしました。",
+        "points": [
+          "事前にライブラリをインストールする必要がなく、`git clone` してすぐにビルド・実行が可能"
+        ]
+      }
+    ],
+    "features": [
+      { "label": "ゲームループ", "text": "入力・更新・描画の明確な分離" },
+      { "label": "レベルデザイン", "text": "ステージ進行に応じた難易度上昇（ブロック配置の変化、ボール速度アップ）" },
+      { "label": "演出", "text": "タイトル画面での浮遊アニメーション（三角関数を利用）、クリア／ゲームオーバー時の演出" },
+      { "label": "UI", "text": "独自実装のスコア表示・メッセージシステム" }
     ],
     "repo": "https://github.com/niajf/Breakout",
     "demo": "",

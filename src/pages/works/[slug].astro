@@ -1,5 +1,7 @@
 ---
+import { Code } from "astro:components";
 import Base from "../../layouts/Base.astro";
+import RichText from "../../components/RichText.astro";
 import works from "../../data/works.json";
 
 export function getStaticPaths() {
@@ -12,6 +14,10 @@ export function getStaticPaths() {
 const { work } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const thumb = work.thumbnail ? base + work.thumbnail : null;
+const period = work.period ? [work.period].flat() : [];
+// 文字列だけの highlights（タイトルのみ）にも対応する
+const highlights = (work.highlights ?? []).map((h) => (typeof h === "string" ? { title: h } : h));
+const pad = (n) => String(n).padStart(2, "0");
 ---
 
 <Base title={work.title} description={work.tagline}>
@@ -24,6 +30,29 @@ const thumb = work.thumbnail ? base + work.thumbnail : null;
       <p class="tagline">{work.tagline}</p>
       <div class="tags">
         {work.tags.map((t) => <span class="tag">{t}</span>)}
+      </div>
+      <div class="actions">
+        {
+          work.repo && (
+            <a class="btn btn-primary" href={work.repo} target="_blank" rel="noopener">
+              GitHub リポジトリ
+            </a>
+          )
+        }
+        {
+          work.demo && (
+            <a class="btn btn-ghost" href={work.demo} target="_blank" rel="noopener">
+              ブラウザでプレイ
+            </a>
+          )
+        }
+        {
+          work.doc && (
+            <a class="btn btn-ghost" href={base + work.doc} target="_blank" rel="noopener">
+              企画書を見る
+            </a>
+          )
+        }
       </div>
     </header>
 
@@ -49,41 +78,179 @@ const thumb = work.thumbnail ? base + work.thumbnail : null;
       )
     }
 
-    <section class="overview">
+    <section class="section">
       <h2>概要</h2>
       <p>{work.description}</p>
+      {
+        (period.length > 0 || work.stack) && (
+          <dl class="kv spec">
+            {period.length > 0 && (
+              <>
+                <dt>開発期間</dt>
+                <dd>
+                  {period.map((p) => (
+                    <span class="line">{p}</span>
+                  ))}
+                </dd>
+              </>
+            )}
+            {work.stack?.map((s) => (
+              <>
+                <dt>{s.label}</dt>
+                <dd>{s.value}</dd>
+              </>
+            ))}
+          </dl>
+        )
+      }
     </section>
 
-    <section class="overview">
-      <h2>工夫したこと</h2>
-      <ul class="highlights">
-        {work.highlights.map((h) => <li>{h}</li>)}
-      </ul>
-    </section>
+    {
+      work.gameplay && (
+        <section class="section">
+          <h2>ゲーム概要</h2>
+          {work.gameplay.summary && <p class="lead">{work.gameplay.summary}</p>}
+          <dl class="kv">
+            {work.gameplay.items.map((item) => (
+              <>
+                <dt>{item.label}</dt>
+                <dd>
+                  <RichText text={item.text} />
+                </dd>
+              </>
+            ))}
+          </dl>
+          {work.gameplay.image && (
+            <figure class="figure">
+              <img src={base + work.gameplay.image} alt={`${work.title} の遊び方`} loading="lazy" />
+            </figure>
+          )}
+        </section>
+      )
+    }
 
-    <div class="actions">
-      {
-        work.repo && (
-          <a class="btn btn-primary" href={work.repo} target="_blank" rel="noopener">
-            GitHub リポジトリ
-          </a>
-        )
-      }
-      {
-        work.demo && (
-          <a class="btn btn-ghost" href={work.demo} target="_blank" rel="noopener">
-            ブラウザでプレイ
-          </a>
-        )
-      }
-      {
-        work.doc && (
-          <a class="btn btn-ghost" href={import.meta.env.BASE_URL.replace(/\/$/, "") + work.doc} target="_blank" rel="noopener">
-            企画書を見る
-          </a>
-        )
-      }
-    </div>
+    {
+      work.algorithms && (
+        <section class="section">
+          <h2>アルゴリズム概要</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>機能</th>
+                  <th>アルゴリズム / データ構造</th>
+                  <th>計算量</th>
+                  <th>狙い</th>
+                </tr>
+              </thead>
+              <tbody>
+                {work.algorithms.rows.map((r) => (
+                  <tr>
+                    <td class="feature">{r.feature}</td>
+                    <td>
+                      <RichText text={r.method} />
+                    </td>
+                    <td class="complexity">{r.complexity}</td>
+                    <td>
+                      <RichText text={r.aim} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {work.algorithms.note && <p class="note">※ {work.algorithms.note}</p>}
+        </section>
+      )
+    }
+
+    {
+      highlights.length > 0 && (
+        <section class="section">
+          <h2>技術的なこだわり</h2>
+          <ol class="hl-list">
+            {highlights.map((h, i) => (
+              <li class="hl">
+                <div class="hl-head">
+                  <span class="hl-num">{pad(i + 1)}</span>
+                  <h3>{h.title}</h3>
+                  {h.badge && <span class="badge">{h.badge}</span>}
+                </div>
+                {h.summary && (
+                  <p class="hl-summary">
+                    <RichText text={h.summary} />
+                  </p>
+                )}
+                {h.code?.map((c) => (
+                  <figure class="code">
+                    {c.label && <figcaption>{c.label}</figcaption>}
+                    <Code code={c.src.join("\n")} lang={c.lang} theme="github-dark" />
+                  </figure>
+                ))}
+                {h.points && (
+                  <ul class="points">
+                    {h.points.map((p) => (
+                      <li>
+                        <RichText text={p} />
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ol>
+        </section>
+      )
+    }
+
+    {
+      work.updates && (
+        <section class="section">
+          <h2>{work.updates.title}</h2>
+          <dl class="kv">
+            {work.updates.items.map((item) => (
+              <>
+                <dt>{item.label}</dt>
+                <dd>
+                  <RichText text={item.text} />
+                </dd>
+              </>
+            ))}
+          </dl>
+        </section>
+      )
+    }
+
+    {
+      work.features && (
+        <section class="section">
+          <h2>実装機能一覧</h2>
+          <ul class="features">
+            {work.features.map((f) => (
+              <li>
+                <strong>{f.label}</strong>
+                <span>
+                  <RichText text={f.text} />
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      work.aiUsage && (
+        <section class="section">
+          <h2>AI の使用について</h2>
+          <p class="note-box">
+            <RichText text={work.aiUsage} />
+          </p>
+        </section>
+      )
+    }
+
+    <a class="back back-bottom" href={`${base}/`}>← Works に戻る</a>
   </main>
 </Base>
 
@@ -101,6 +268,12 @@ const thumb = work.thumbnail ? base + work.thumbnail : null;
   }
   .back:hover {
     color: var(--accent);
+  }
+  .back-bottom {
+    margin: 8px 0 0;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    width: 100%;
   }
   .yr {
     font-family: "JetBrains Mono", monospace;
@@ -122,6 +295,12 @@ const thumb = work.thumbnail ? base + work.thumbnail : null;
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+    margin-bottom: 24px;
+  }
+  .actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
     margin-bottom: 40px;
   }
   .hero-img {
@@ -140,7 +319,7 @@ const thumb = work.thumbnail ? base + work.thumbnail : null;
     border-radius: var(--radius);
     overflow: hidden;
     border: 1px solid var(--border);
-    margin-bottom: 40px;
+    margin-bottom: 48px;
   }
   .video iframe {
     position: absolute;
@@ -148,43 +327,251 @@ const thumb = work.thumbnail ? base + work.thumbnail : null;
     width: 100%;
     height: 100%;
   }
-  .overview {
-    margin-bottom: 36px;
+  .section {
+    margin-bottom: 56px;
   }
   h2 {
     font-size: 20px;
     font-weight: 700;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
     padding-left: 12px;
     border-left: 3px solid var(--accent);
   }
-  .overview p {
+  .section > p {
     color: var(--text);
     font-size: 16px;
   }
-  .highlights {
+  .lead {
+    margin-bottom: 20px;
+  }
+
+  /* ラベルと値の一覧（スペック・ゲーム概要・変更点） */
+  .kv {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .spec {
+    margin-top: 24px;
+  }
+  .kv dt,
+  .kv dd {
+    padding: 11px 18px;
+    border-top: 1px solid var(--border);
+  }
+  .kv dt:first-of-type,
+  .kv dd:first-of-type {
+    border-top: none;
+  }
+  .kv dt {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    white-space: nowrap;
+    padding-top: 13px;
+  }
+  .spec dt {
+    font-family: "JetBrains Mono", "Noto Sans JP", monospace;
+    font-weight: 500;
+    color: var(--text-dim);
+  }
+  .kv dd {
+    font-size: 15px;
+    padding-left: 0;
+  }
+  .line {
+    display: block;
+  }
+
+  .figure {
+    margin-top: 20px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .figure img {
+    width: 100%;
+    display: block;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  table {
+    width: 100%;
+    min-width: 640px;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  th,
+  td {
+    text-align: left;
+    vertical-align: top;
+    padding: 11px 14px;
+    border-top: 1px solid var(--border);
+  }
+  thead th {
+    border-top: none;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    background: var(--bg-soft);
+    white-space: nowrap;
+  }
+  .feature {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .complexity {
+    font-family: "JetBrains Mono", "Noto Sans JP", monospace;
+    font-size: 13px;
+    color: var(--accent-2);
+  }
+  .note {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  /* 技術的なこだわり */
+  .hl-list {
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 20px;
   }
-  .highlights li {
+  .hl {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+  .hl > :last-child {
+    margin-bottom: 0;
+  }
+  .hl-head {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    margin-bottom: 12px;
+  }
+  .hl-num {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    color: var(--accent);
+  }
+  h3 {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.45;
+  }
+  .badge {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    background: rgba(124, 140, 255, 0.1);
+    border: 1px solid rgba(124, 140, 255, 0.35);
+    padding: 1px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .hl-summary {
+    font-size: 15px;
+    margin-bottom: 16px;
+  }
+  .code {
+    margin-bottom: 16px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .code figcaption {
+    font-family: "JetBrains Mono", "Noto Sans JP", monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    padding: 8px 14px;
+    background: var(--bg-soft);
+    border-bottom: 1px solid var(--border);
+  }
+  .code :global(pre) {
+    margin: 0;
+    padding: 14px 16px;
+    font-family: "JetBrains Mono", "Noto Sans JP", monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    background-color: var(--bg) !important;
+  }
+  .points {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .points li {
     position: relative;
-    padding-left: 24px;
-    color: var(--text);
+    padding-left: 22px;
+    font-size: 15px;
   }
-  .highlights li::before {
+  .points li::before {
     content: "▹";
     position: absolute;
     left: 0;
     color: var(--accent-2);
   }
-  .actions {
-    display: flex;
+
+  .features {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 12px;
-    flex-wrap: wrap;
-    margin-top: 48px;
-    padding-top: 32px;
-    border-top: 1px solid var(--border);
+  }
+  .features li {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .features strong {
+    display: block;
+    font-size: 14px;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .features span {
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+
+  .note-box {
+    padding: 16px 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent-2);
+    border-radius: 12px;
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+
+  @media (max-width: 560px) {
+    .kv {
+      grid-template-columns: 1fr;
+    }
+    .kv dt {
+      padding-bottom: 0;
+    }
+    .kv dd {
+      border-top: none;
+      padding: 2px 18px 11px;
+    }
+    .hl {
+      padding: 20px 18px;
+    }
   }
 </style>

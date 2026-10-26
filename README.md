@@ -55,9 +55,48 @@ const REPO_NAME   = "portfolio";   // ← このリポジトリ名
   "highlights": ["工夫した点1", "工夫した点2"],
   "repo": "https://github.com/.../new-game",
   "demo": "",                          // WebGL等のプレイURL。空なら非表示
+  "doc": "",                           // 企画書 PDF (public/docs/ に置く)。空なら非表示
   "video": "",                         // YouTube 埋め込みURL (https://www.youtube.com/embed/xxxx)。空なら非表示
   "featured": true,                    // true で上位表示
   "year": 2026
+}
+```
+
+### 詳細ページ用の項目（すべて任意）
+
+詳細ページには以下の項目も表示できます。書かなかった項目のセクションは表示されません。
+文中の `` `バッククォート` `` で囲んだ部分はインラインコードとして表示されます。
+
+```jsonc
+{
+  "period": "2026年2月〜2026年4月",       // 開発期間。配列にすると複数行で表示
+  "stack": [{ "label": "Engine", "value": "Unity 6" }],  // 技術スタック（開発期間と同じ表に表示）
+  "gameplay": {                           // ゲーム概要
+    "summary": "一文の説明",               // 任意
+    "items": [{ "label": "操作", "text": "WASD で移動" }],
+    "image": "/works/new-game_how_to_play.png"  // 任意。public/works/ に置く
+  },
+  "algorithms": {                         // アルゴリズム概要の表
+    "note": "表の下に出す注記",
+    "rows": [{ "feature": "機能", "method": "手法", "complexity": "O(N²)", "aim": "狙い" }]
+  },
+  "highlights": [                         // 技術的なこだわり。文字列だけでもOK（タイトルのみ表示）
+    {
+      "title": "見出し",
+      "badge": "v2 で追加",                // 任意。見出し横のラベル
+      "summary": "説明文",
+      "code": [                           // 任意。複数ブロック可
+        { "label": "Player.cs — 説明", "lang": "csharp", "src": ["1行目", "2行目"] }
+      ],
+      "points": ["箇条書き1", "箇条書き2"]
+    }
+  ],
+  "updates": {                            // 変更点など（見出しは title で指定）
+    "title": "v1.x からの変更点",
+    "items": [{ "label": "敵 AI", "text": "変更内容" }]
+  },
+  "features": [{ "label": "機能名", "text": "説明" }],  // 実装機能一覧
+  "aiUsage": "AI の使用箇所についての説明"
 }
 ```
 
