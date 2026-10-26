@@ -20,23 +20,36 @@ const SITE = "Taiga — Game Engineer Portfolio";
     />
   </head>
   <body>
-    <div class="bg-grid" aria-hidden="true"></div>
     <slot />
   </body>
 </html>
 
 <style is:global>
   :root {
-    --bg: #0b0e14;
-    --bg-soft: #111621;
-    --card: #161c2b;
-    --card-hover: #1b2336;
-    --border: #232c40;
-    --text: #e6e9f0;
-    --text-dim: #9aa4b8;
-    --accent: #7c8cff;
-    --accent-2: #4fd1c5;
-    --award: #f5c451;
+    color-scheme: light;
+    --bg: #f4f5f8;
+    --bg-soft: #eceef3;
+    --card: #ffffff;
+    --card-hover: #ffffff;
+    --border: #d9dde6;
+    --text: #1c2230;
+    --text-dim: #566074;
+    /* 色の役割: accent = リンク・操作 / accent-2 = 所属 / award = 受賞 */
+    --accent: #4251cc;
+    --accent-2: #0b7a71;
+    --award: #9a5b00;
+    --accent-soft: rgba(66, 81, 204, 0.08);
+    --accent-line: rgba(66, 81, 204, 0.25);
+    --on-accent: #ffffff;
+    --tag-text: #3b4354;
+    --tag-bg: #eef0f5;
+    --tag-border: #dfe3ea;
+    --placeholder: linear-gradient(135deg, #e7eaf2, #dde1eb);
+    --overlay: rgba(255, 255, 255, 0.88);
+    --shadow: 0 1px 2px rgba(22, 30, 60, 0.06), 0 6px 20px -8px rgba(22, 30, 60, 0.12);
+    --shadow-hover: 0 16px 40px -16px rgba(66, 81, 204, 0.35);
+    /* コードブロックはライトテーマでも暗いまま */
+    --code-bg: #161b26;
     --radius: 16px;
     --maxw: 1080px;
   }
@@ -56,21 +69,10 @@ const SITE = "Taiga — Game Engineer Portfolio";
     color: var(--text);
     font-family: "Inter", "Noto Sans JP", system-ui, sans-serif;
     line-height: 1.7;
+    letter-spacing: 0.03em;
     -webkit-font-smoothing: antialiased;
     position: relative;
     min-height: 100vh;
-  }
-
-  .bg-grid {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    background:
-      radial-gradient(60% 50% at 50% 0%, rgba(124, 140, 255, 0.12), transparent 70%),
-      linear-gradient(var(--bg-soft) 1px, transparent 1px) 0 0 / 100% 64px,
-      linear-gradient(90deg, var(--bg-soft) 1px, transparent 1px) 0 0 / 64px 100%;
-    opacity: 0.5;
-    mask-image: linear-gradient(to bottom, black, transparent 80%);
   }
 
   a {
@@ -86,10 +88,10 @@ const SITE = "Taiga — Game Engineer Portfolio";
 
   .tag {
     font-family: "JetBrains Mono", monospace;
-    font-size: 12px;
-    color: var(--accent-2);
-    background: rgba(79, 209, 197, 0.08);
-    border: 1px solid rgba(79, 209, 197, 0.2);
+    font-size: 13px;
+    color: var(--tag-text);
+    background: var(--tag-bg);
+    border: 1px solid var(--tag-border);
     padding: 3px 10px;
     border-radius: 999px;
     white-space: nowrap;
@@ -108,7 +110,7 @@ const SITE = "Taiga — Game Engineer Portfolio";
   }
   .btn-primary {
     background: var(--accent);
-    color: #0b0e14;
+    color: var(--on-accent);
     border-color: var(--accent);
   }
   .btn-primary:hover {

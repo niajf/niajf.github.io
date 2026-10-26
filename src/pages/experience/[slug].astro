@@ -97,7 +97,7 @@ const blocks = [
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
-    font-size: 13px;
+    font-size: 14px;
   }
   .period {
     font-family: "JetBrains Mono", monospace;
@@ -105,6 +105,7 @@ const blocks = [
   }
   .org {
     color: var(--accent-2);
+    font-weight: 600;
   }
   h1 {
     font-size: clamp(26px, 4.5vw, 38px);
@@ -114,7 +115,7 @@ const blocks = [
   }
   .meta {
     font-family: "JetBrains Mono", monospace;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--text-dim);
     margin-top: 8px;
   }
@@ -150,6 +151,7 @@ const blocks = [
   }
   .summary {
     font-size: 16px;
+    line-height: 1.85;
     color: var(--text);
   }
   .summary + .points {
@@ -164,6 +166,7 @@ const blocks = [
   .points li {
     position: relative;
     padding-left: 24px;
+    line-height: 1.85;
     color: var(--text);
   }
   .points li::before {

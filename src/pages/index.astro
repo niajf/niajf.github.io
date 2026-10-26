@@ -102,8 +102,8 @@ const allTags = [
   }
   .eyebrow {
     font-family: "JetBrains Mono", monospace;
-    font-size: 13px;
-    letter-spacing: 0.3em;
+    font-size: 14px;
+    letter-spacing: 0.1em;
     color: var(--accent);
     margin-bottom: 14px;
   }
@@ -111,7 +111,9 @@ const allTags = [
     font-size: clamp(48px, 9vw, 84px);
     font-weight: 700;
     line-height: 1;
-    background: linear-gradient(120deg, #fff, var(--accent) 60%, var(--accent-2));
+    /* グラデーションを見出しの横幅ではなく文字の幅に合わせる */
+    width: fit-content;
+    background: linear-gradient(120deg, var(--text) 15%, var(--accent) 55%, var(--accent-2));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -152,7 +154,7 @@ const allTags = [
   }
   .count {
     font-family: "JetBrains Mono", monospace;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--text-dim);
   }
   .grid {
@@ -170,7 +172,7 @@ const allTags = [
     padding-top: 28px;
     border-top: 1px solid var(--border);
     color: var(--text-dim);
-    font-size: 13px;
+    font-size: 14px;
     text-align: center;
   }
 </style>

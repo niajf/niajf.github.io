@@ -277,7 +277,7 @@ const pad = (n) => String(n).padStart(2, "0");
   }
   .yr {
     font-family: "JetBrains Mono", monospace;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--accent);
   }
   h1 {
@@ -340,6 +340,7 @@ const pad = (n) => String(n).padStart(2, "0");
   .section > p {
     color: var(--text);
     font-size: 16px;
+    line-height: 1.85;
   }
   .lead {
     margin-bottom: 20px;
@@ -367,7 +368,7 @@ const pad = (n) => String(n).padStart(2, "0");
     border-top: none;
   }
   .kv dt {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--accent);
     white-space: nowrap;
@@ -418,7 +419,7 @@ const pad = (n) => String(n).padStart(2, "0");
   }
   thead th {
     border-top: none;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--text-dim);
     background: var(--bg-soft);
@@ -430,12 +431,12 @@ const pad = (n) => String(n).padStart(2, "0");
   }
   .complexity {
     font-family: "JetBrains Mono", "Noto Sans JP", monospace;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--accent-2);
   }
   .note {
     margin-top: 10px;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--text-dim);
   }
 
@@ -464,7 +465,7 @@ const pad = (n) => String(n).padStart(2, "0");
   }
   .hl-num {
     font-family: "JetBrains Mono", monospace;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--accent);
   }
   h3 {
@@ -473,17 +474,18 @@ const pad = (n) => String(n).padStart(2, "0");
     line-height: 1.45;
   }
   .badge {
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--accent);
-    background: rgba(124, 140, 255, 0.1);
-    border: 1px solid rgba(124, 140, 255, 0.35);
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-line);
     padding: 1px 9px;
     border-radius: 999px;
     white-space: nowrap;
   }
   .hl-summary {
     font-size: 15px;
+    line-height: 1.85;
     margin-bottom: 16px;
   }
   .code {
@@ -494,7 +496,7 @@ const pad = (n) => String(n).padStart(2, "0");
   }
   .code figcaption {
     font-family: "JetBrains Mono", "Noto Sans JP", monospace;
-    font-size: 12px;
+    font-size: 13px;
     color: var(--text-dim);
     padding: 8px 14px;
     background: var(--bg-soft);
@@ -506,7 +508,7 @@ const pad = (n) => String(n).padStart(2, "0");
     font-family: "JetBrains Mono", "Noto Sans JP", monospace;
     font-size: 13px;
     line-height: 1.6;
-    background-color: var(--bg) !important;
+    background-color: var(--code-bg) !important;
   }
   .points {
     list-style: none;
@@ -518,6 +520,7 @@ const pad = (n) => String(n).padStart(2, "0");
     position: relative;
     padding-left: 22px;
     font-size: 15px;
+    line-height: 1.85;
   }
   .points li::before {
     content: "▹";
