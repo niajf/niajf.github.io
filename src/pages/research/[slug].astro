@@ -29,6 +29,17 @@ const slides = research.slides ? base + research.slides : null;
     </header>
 
     {
+      research.awards?.length > 0 && (
+        <section class="block">
+          <h2>受賞歴</h2>
+          <ul class="awards">
+            {research.awards.map((a) => <li>{a}</li>)}
+          </ul>
+        </section>
+      )
+    }
+
+    {
       videoId && (
         <section class="block">
           <h2>発表動画</h2>
@@ -107,6 +118,23 @@ const slides = research.slides ? base + research.slides : null;
     margin-bottom: 16px;
     padding-left: 12px;
     border-left: 3px solid var(--accent);
+  }
+  .awards {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .awards li {
+    position: relative;
+    padding-left: 24px;
+    font-weight: 500;
+  }
+  .awards li::before {
+    content: "★";
+    position: absolute;
+    left: 0;
+    color: var(--award);
   }
   .frame {
     position: relative;

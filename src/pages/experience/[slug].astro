@@ -1,0 +1,175 @@
+---
+import Base from "../../layouts/Base.astro";
+import experiences from "../../data/experiences.json";
+
+export function getStaticPaths() {
+  return experiences.map((experience) => ({
+    params: { slug: experience.slug },
+    props: { experience },
+  }));
+}
+
+const { experience } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const thumb = experience.thumbnail ? base + experience.thumbnail : null;
+const meta = [experience.duration, experience.role].filter(Boolean);
+
+const blocks = [
+  { label: "概要", data: experience.overview },
+  { label: "参加理由", data: experience.motivation },
+  { label: "学び", data: experience.learnings },
+  { label: "成長", data: experience.growth },
+].filter((b) => b.data && (b.data.summary || b.data.points?.length));
+---
+
+<Base title={experience.title} description={`${experience.org} での経験`}>
+  <main class="container">
+    <a class="back" href={`${base}/#experience`}>← Experience に戻る</a>
+
+    <header class="head">
+      <p class="eyebrow">
+        <span class="period">{experience.period}</span>
+        <span class="org">{experience.org}</span>
+      </p>
+      <h1>{experience.title}</h1>
+      {
+        meta.length > 0 && (
+          <p class="meta">
+            {meta.map((m, i) => (
+              <>
+                {i > 0 && <span class="sep">/</span>}
+                <span>{m}</span>
+              </>
+            ))}
+          </p>
+        )
+      }
+      <div class="tags">
+        {experience.tags.map((t) => <span class="tag">{t}</span>)}
+      </div>
+    </header>
+
+    {
+      thumb && (
+        <div class="hero-img">
+          <img src={thumb} alt={experience.title} />
+        </div>
+      )
+    }
+
+    {
+      blocks.map((b) => (
+        <section class="block">
+          <h2>{b.label}</h2>
+          {b.data.summary && <p class="summary">{b.data.summary}</p>}
+          {b.data.points?.length > 0 && (
+            <ul class="points">
+              {b.data.points.map((p) => (
+                <li>{p}</li>
+              ))}
+            </ul>
+          )}
+        </section>
+      ))
+    }
+  </main>
+</Base>
+
+<style>
+  main {
+    padding: 48px 24px 100px;
+    max-width: 820px;
+  }
+  .back {
+    display: inline-block;
+    color: var(--text-dim);
+    font-size: 14px;
+    margin-bottom: 40px;
+    transition: color 0.15s ease;
+  }
+  .back:hover {
+    color: var(--accent);
+  }
+  .head {
+    margin-bottom: 40px;
+  }
+  .eyebrow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 13px;
+  }
+  .period {
+    font-family: "JetBrains Mono", monospace;
+    color: var(--accent);
+  }
+  .org {
+    color: var(--accent-2);
+  }
+  h1 {
+    font-size: clamp(26px, 4.5vw, 38px);
+    font-weight: 700;
+    line-height: 1.35;
+    margin-top: 6px;
+  }
+  .meta {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 8px;
+  }
+  .sep {
+    margin: 0 8px;
+    opacity: 0.5;
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 18px;
+  }
+  .hero-img {
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+  .hero-img img {
+    width: 100%;
+    display: block;
+  }
+  .block {
+    margin-bottom: 40px;
+  }
+  h2 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    padding-left: 12px;
+    border-left: 3px solid var(--accent);
+  }
+  .summary {
+    font-size: 16px;
+    color: var(--text);
+  }
+  .summary + .points {
+    margin-top: 16px;
+  }
+  .points {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .points li {
+    position: relative;
+    padding-left: 24px;
+    color: var(--text);
+  }
+  .points li::before {
+    content: "▹";
+    position: absolute;
+    left: 0;
+    color: var(--accent-2);
+  }
+</style>

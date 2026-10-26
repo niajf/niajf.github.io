@@ -25,6 +25,13 @@ const thumb = research.thumbnail
   <div class="body">
     <p class="conference">{research.conference}</p>
     <h3>{research.title}</h3>
+    {
+      research.awards?.length > 0 && (
+        <ul class="awards">
+          {research.awards.map((a) => <li>{a}</li>)}
+        </ul>
+      )
+    }
     <div class="tags">
       {videoId && <span class="tag">発表動画</span>}
       {research.slides && <span class="tag">発表スライド</span>}
@@ -103,6 +110,26 @@ const thumb = research.thumbnail
     font-weight: 700;
     line-height: 1.4;
     margin-bottom: 14px;
+  }
+  .awards {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: -6px 0 14px;
+  }
+  .awards li {
+    position: relative;
+    padding-left: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--award);
+  }
+  .awards li::before {
+    content: "★";
+    position: absolute;
+    left: 0;
   }
   .tags {
     display: flex;
