@@ -38,7 +38,10 @@ const REPO_NAME   = "portfolio";   // ← このリポジトリ名
 
 3. GitHub のリポジトリ → **Settings → Pages → Build and deployment → Source** を
    **GitHub Actions** に設定する
-4. `main` に push するたびに `.github/workflows/deploy.yml` が自動でビルド & 公開します
+4. `main` か `develop` に push するたびに `.github/workflows/deploy.yml` が両方のブランチをビルドして公開します
+   - `main` → `https://<ユーザー名>.github.io/`
+   - `develop` → `https://<ユーザー名>.github.io/develop/`（検索結果には出しません）
+5. `develop` への push でも公開されるように、**Settings → Environments → github-pages → Deployment branches and tags** に `develop` を追加する
 
 ## 作品の追加・編集
 
