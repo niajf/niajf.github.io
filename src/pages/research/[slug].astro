@@ -1,5 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
+import RichText from "../../components/RichText.astro";
 import researchList from "../../data/research.json";
 import { youtubeId } from "../../utils/youtube.js";
 
@@ -14,9 +15,12 @@ const { research } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const videoId = youtubeId(research.video);
 const slides = research.slides ? base + research.slides : null;
+const sections = research.sections ?? [];
+const origins = { own: "本研究の提案", existing: "既存手法を利用" };
+const pad = (n) => String(n).padStart(2, "0");
 ---
 
-<Base title={research.title} description={`${research.conference} での発表`}>
+<Base title={research.title} description={research.summary ?? `${research.conference} での発表`}>
   <main class="container">
     <a class="back" href={`${base}/#research`}>← Research に戻る</a>
 
@@ -26,22 +30,186 @@ const slides = research.slides ? base + research.slides : null;
         <span class="conference">{research.conference}</span>
       </p>
       <h1>{research.title}</h1>
-    </header>
-
-    {
-      research.awards?.length > 0 && (
-        <section class="block">
-          <h2>受賞歴</h2>
+      {research.authors && <p class="authors">{research.authors}</p>}
+      {
+        research.awards?.length > 0 && (
           <ul class="awards">
             {research.awards.map((a) => <li>{a}</li>)}
           </ul>
+        )
+      }
+      {
+        (videoId || slides) && (
+          <div class="actions">
+            {videoId && (
+              <a class="btn btn-primary" href="#video">
+                発表動画を見る
+              </a>
+            )}
+            {slides && (
+              <a class="btn btn-ghost" href={slides} target="_blank" rel="noopener">
+                スライドを開く（PDF）
+              </a>
+            )}
+          </div>
+        )
+      }
+    </header>
+
+    {
+      research.metrics && (
+        <section class="block">
+          <div class="metrics">
+            {research.metrics.map((m) => (
+              <div class="metric">
+                <p class="metric-value">
+                  {m.value}
+                  {m.unit && <span class="metric-unit">{m.unit}</span>}
+                </p>
+                <p class="metric-label">{m.label}</p>
+                {m.note && <p class="metric-note">{m.note}</p>}
+              </div>
+            ))}
+          </div>
+          {research.metricsNote && <p class="note">※ {research.metricsNote}</p>}
         </section>
       )
     }
 
     {
-      videoId && (
+      (research.summary || research.spec) && (
         <section class="block">
+          <h2>概要</h2>
+          {research.summary && (
+            <p class="lead">
+              <RichText text={research.summary} />
+            </p>
+          )}
+          {research.spec && (
+            <dl class="kv">
+              {research.spec.map((s) => (
+                <>
+                  <dt>{s.label}</dt>
+                  <dd>{s.value}</dd>
+                </>
+              ))}
+            </dl>
+          )}
+        </section>
+      )
+    }
+
+    {
+      sections.map((s) => (
+        <section class="block">
+          <h2>{s.title}</h2>
+          {s.summary && (
+            <p class="lead">
+              <RichText text={s.summary} />
+            </p>
+          )}
+          {s.points && (
+            <ul class="points">
+              {s.points.map((p) => (
+                <li>
+                  <RichText text={p} />
+                </li>
+              ))}
+            </ul>
+          )}
+          {s.cards && (
+            <div class="cards">
+              {s.cards.map((c) => (
+                <div class="info-card">
+                  <h3>{c.title}</h3>
+                  <p>
+                    <RichText text={c.text} />
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+          {s.figures?.map((f) => (
+            <figure class="figure">
+              <img src={base + f.src} alt={f.caption ?? ""} loading="lazy" />
+              {f.caption && (
+                <figcaption>
+                  <RichText text={f.caption} />
+                </figcaption>
+              )}
+            </figure>
+          ))}
+          {s.gallery && (
+            <figure class="gallery">
+              <ol>
+                {s.gallery.items.map((g) => (
+                  <li>
+                    <img src={base + g.src} alt={g.label} loading="lazy" />
+                    <span>{g.label}</span>
+                  </li>
+                ))}
+              </ol>
+              {s.gallery.caption && <figcaption>{s.gallery.caption}</figcaption>}
+            </figure>
+          )}
+          {s.steps && (
+            <ol class="steps">
+              {s.steps.map((st, i) => (
+                <li class="step">
+                  <div class="step-head">
+                    <span class="step-num">{pad(i + 1)}</span>
+                    <h3>{st.title}</h3>
+                    {st.origin && <span class:list={["badge", st.origin]}>{origins[st.origin]}</span>}
+                  </div>
+                  <p>
+                    <RichText text={st.text} />
+                  </p>
+                  {st.image && <img class="step-img" src={base + st.image} alt={st.title} loading="lazy" />}
+                </li>
+              ))}
+            </ol>
+          )}
+          {s.tables?.map((t) => (
+            <div class="table-block">
+              {t.caption && <p class="table-caption">{t.caption}</p>}
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      {t.head.map((h) => (
+                        <th>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {t.rows.map((r) => (
+                      <tr>
+                        {r.map((cell) => (
+                          <td>{cell}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                  {t.footer && (
+                    <tfoot>
+                      <tr>
+                        {t.footer.map((cell) => (
+                          <td>{cell}</td>
+                        ))}
+                      </tr>
+                    </tfoot>
+                  )}
+                </table>
+              </div>
+            </div>
+          ))}
+        </section>
+      ))
+    }
+
+    {
+      videoId && (
+        <section class="block" id="video">
           <h2>発表動画</h2>
           <div class="frame">
             <iframe
@@ -69,6 +237,8 @@ const slides = research.slides ? base + research.slides : null;
         </section>
       )
     }
+
+    <a class="back back-bottom" href={`${base}/#research`}>← Research に戻る</a>
   </main>
 </Base>
 
@@ -86,6 +256,12 @@ const slides = research.slides ? base + research.slides : null;
   }
   .back:hover {
     color: var(--accent);
+  }
+  .back-bottom {
+    margin: 8px 0 0;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    width: 100%;
   }
   .head {
     margin-bottom: 40px;
@@ -110,8 +286,19 @@ const slides = research.slides ? base + research.slides : null;
     line-height: 1.35;
     margin-top: 6px;
   }
+  .authors {
+    margin-top: 10px;
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 24px;
+  }
   .block {
-    margin-bottom: 40px;
+    margin-bottom: 56px;
   }
   h2 {
     font-size: 20px;
@@ -120,23 +307,306 @@ const slides = research.slides ? base + research.slides : null;
     padding-left: 12px;
     border-left: 3px solid var(--accent);
   }
+  h3 {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.45;
+  }
+  .lead {
+    font-size: 16px;
+    line-height: 1.85;
+  }
+  .lead + * {
+    margin-top: 20px;
+  }
+  .note {
+    margin-top: 10px;
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+
   .awards {
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 6px;
+    margin-top: 16px;
   }
   .awards li {
     position: relative;
     padding-left: 24px;
-    font-weight: 500;
+    font-weight: 600;
+    color: var(--award);
   }
   .awards li::before {
     content: "★";
     position: absolute;
     left: 0;
-    color: var(--award);
   }
+
+  /* 成果の数字 */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    gap: 12px;
+  }
+  .metric {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+  }
+  .metric-value {
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: 0;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .metric-unit {
+    font-size: 18px;
+    margin-left: 3px;
+  }
+  .metric-label {
+    font-size: 15px;
+    font-weight: 700;
+    word-break: auto-phrase;
+  }
+  .metric-note {
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+
+  /* ラベルと値の一覧 */
+  .kv {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .kv dt,
+  .kv dd {
+    padding: 11px 18px;
+    border-top: 1px solid var(--border);
+  }
+  .kv dt:first-of-type,
+  .kv dd:first-of-type {
+    border-top: none;
+  }
+  .kv dt {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dim);
+    white-space: nowrap;
+    padding-top: 12px;
+  }
+  .kv dd {
+    font-size: 15px;
+    padding-left: 0;
+  }
+
+  .points {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .points li {
+    position: relative;
+    padding-left: 22px;
+    font-size: 15px;
+    line-height: 1.85;
+  }
+  .points li::before {
+    content: "▹";
+    position: absolute;
+    left: 0;
+    color: var(--accent-2);
+  }
+  .points + .figure {
+    margin-top: 24px;
+  }
+
+  /* ゲーム開発に活かせること */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    gap: 12px;
+  }
+  .info-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+  }
+  .info-card h3 {
+    font-size: 16px;
+    color: var(--accent);
+  }
+  .info-card p {
+    font-size: 15px;
+    line-height: 1.8;
+  }
+
+  /* 図 */
+  .figure {
+    margin: 0;
+  }
+  .figure + .figure,
+  .figure + .gallery,
+  .gallery + .steps,
+  .figure + .table-block {
+    margin-top: 28px;
+  }
+  .figure img {
+    display: block;
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--card);
+  }
+  figcaption {
+    margin-top: 8px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-dim);
+  }
+
+  .gallery ol {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+  }
+  .gallery li {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+  .gallery img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .gallery span {
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  /* 手順 */
+  .steps {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .step {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
+  .step-head {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    margin-bottom: 6px;
+  }
+  .step-num {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 14px;
+    color: var(--accent);
+  }
+  .step p {
+    font-size: 15px;
+    line-height: 1.85;
+  }
+  .step-img {
+    display: block;
+    width: 100%;
+    margin-top: 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .badge {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 1px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .badge.own {
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-line);
+  }
+  .badge.existing {
+    color: var(--tag-text);
+    background: var(--tag-bg);
+    border: 1px solid var(--tag-border);
+  }
+
+  /* 表 */
+  .table-block + .table-block {
+    margin-top: 24px;
+  }
+  .table-caption {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .table-wrap {
+    overflow-x: auto;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  table {
+    width: 100%;
+    min-width: 560px;
+    border-collapse: collapse;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+  }
+  th,
+  td {
+    text-align: left;
+    vertical-align: top;
+    padding: 10px 14px;
+    border-top: 1px solid var(--border);
+  }
+  thead th {
+    border-top: none;
+    font-weight: 600;
+    color: var(--text-dim);
+    background: var(--bg-soft);
+  }
+  td:first-child {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  tfoot td {
+    font-weight: 700;
+    background: var(--bg-soft);
+  }
+
   .frame {
     position: relative;
     aspect-ratio: 16 / 9;
@@ -156,10 +626,25 @@ const slides = research.slides ? base + research.slides : null;
     margin-bottom: 16px;
   }
 
-  /* スマホのブラウザは PDF の埋め込み表示が不安定なので、ボタンから開いてもらう */
   @media (max-width: 640px) {
+    .gallery ol {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    /* スマホのブラウザは PDF の埋め込み表示が不安定なので、ボタンから開いてもらう */
     .slides {
       display: none;
+    }
+  }
+  @media (max-width: 560px) {
+    .kv {
+      grid-template-columns: 1fr;
+    }
+    .kv dt {
+      padding-bottom: 0;
+    }
+    .kv dd {
+      border-top: none;
+      padding: 2px 18px 11px;
     }
   }
 </style>

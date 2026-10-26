@@ -122,6 +122,53 @@ GIF も使えます。Unity の WebGL ビルドがあれば `demo` にURLを入�
 }
 ```
 
+### 研究の詳細ページ用の項目（すべて任意）
+
+書かなかった項目のセクションは表示されません。図は `public/research/<slug>/` に置きます。
+文中の `` `バッククォート` `` で囲んだ部分はインラインコードとして表示されます。
+
+```jsonc
+{
+  "awards": ["学生発表奨励賞 受賞"],         // タイトルの下に表示
+  "authors": "著者名（所属）",
+  "summary": "概要文",                       // ページの description にも使われる
+  "metrics": [                              // 成果の数字（タイトルの下にカードで表示）
+    { "value": "+5.5", "unit": "pt", "label": "物体検出の精度（mAP）", "note": "比較対象" }
+  ],
+  "metricsNote": "数字の下に出す注記",
+  "spec": [{ "label": "使用モデル", "value": "GroundingDINO / SAM" }],  // 概要の下の表
+  "sections": [                             // 見出しごとのセクション。並び順どおりに表示
+    {
+      "title": "見出し",
+      "summary": "説明文",
+      "points": ["箇条書き1", "箇条書き2"],
+      "cards": [{ "title": "カード見出し", "text": "説明" }],
+      "figures": [{ "src": "/research/research-1/figure.jpg", "caption": "図の説明" }],
+      "gallery": {                          // 小さな画像を横に並べる（処理の流れなど）
+        "caption": "説明",
+        "items": [{ "src": "/research/research-1/step-1.jpg", "label": "ラベル" }]
+      },
+      "steps": [                            // 番号付きの手順
+        {
+          "title": "手順名",
+          "origin": "own",                  // own: 本研究の提案 / existing: 既存手法を利用
+          "text": "説明",
+          "image": "/research/research-1/step.jpg"  // 任意
+        }
+      ],
+      "tables": [
+        {
+          "caption": "表のタイトル",
+          "head": ["列1", "列2"],
+          "rows": [["値", "値"]],
+          "footer": ["平均", "値"]           // 任意。太字の最終行
+        }
+      ]
+    }
+  ]
+}
+```
+
 ## 構成
 
 ```
@@ -137,6 +184,6 @@ src/
     works/[slug].astro   ← 各作品の詳細ページ（自動生成）
     research/[slug].astro ← 各研究の詳細ページ（自動生成）
 public/works/            ← サムネイル画像
-public/research/         ← 発表スライド (PDF)
+public/research/         ← 発表スライド (PDF)・研究の図（<slug>/ 以下）
 .github/workflows/deploy.yml  ← 自動デプロイ
 ```
