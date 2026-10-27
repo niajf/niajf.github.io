@@ -18,6 +18,8 @@ const paragraphs = [].concat(circle.description ?? []).filter(Boolean);
 const videos = (circle.videos ?? [])
   .filter((v) => v.url)
   .map((v) => ({ ...v, id: youtubeId(v.url) }));
+const sections = circle.sections ?? [];
+const pad = (n) => String(n).padStart(2, "0");
 ---
 
 <Base title={circle.title} description={`${circle.circle} での活動`}>
@@ -33,6 +35,15 @@ const videos = (circle.videos ?? [])
       <div class="tags">
         {circle.tags.map((t) => <span class="tag">{t}</span>)}
       </div>
+      {
+        videos.length > 0 && (
+          <div class="actions">
+            <a class="btn btn-primary" href="#video">
+              演舞動画を見る
+            </a>
+          </div>
+        )
+      }
     </header>
 
     {
@@ -47,21 +58,112 @@ const videos = (circle.videos ?? [])
     }
 
     {
-      paragraphs.length > 0 && (
+      (paragraphs.length > 0 || circle.spec) && (
         <section class="block">
           <h2>作品について</h2>
-          <div class="text">
-            {paragraphs.map((p) => (
-              <p><RichText text={p} /></p>
-            ))}
-          </div>
+          {paragraphs.length > 0 && (
+            <div class="text">
+              {paragraphs.map((p) => (
+                <p><RichText text={p} /></p>
+              ))}
+            </div>
+          )}
+          {circle.spec && (
+            <dl class="kv">
+              {circle.spec.map((s) => (
+                <>
+                  <dt><RichText text={s.label} /></dt>
+                  <dd><RichText text={s.value} /></dd>
+                </>
+              ))}
+            </dl>
+          )}
         </section>
       )
     }
 
     {
-      videos.length > 0 && (
+      sections.map((s) => (
         <section class="block">
+          <h2><RichText text={s.title} /></h2>
+          {s.summary && (
+            <p class="lead">
+              <RichText text={s.summary} />
+            </p>
+          )}
+          {s.points && (
+            <ul class="points">
+              {s.points.map((p) => (
+                <li>
+                  <RichText text={p} />
+                </li>
+              ))}
+            </ul>
+          )}
+          {s.cards && (
+            <div class="cards">
+              {s.cards.map((c) => (
+                <div class="info-card">
+                  <h3><RichText text={c.title} /></h3>
+                  <p>
+                    <RichText text={c.text} />
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+          {s.steps && (
+            <ol class="steps">
+              {s.steps.map((st, i) => (
+                <li class="step">
+                  <div class="step-head">
+                    <span class="step-num">{pad(i + 1)}</span>
+                    <h3><RichText text={st.title} /></h3>
+                    {st.date && <span class="badge">{st.date}</span>}
+                  </div>
+                  <p>
+                    <RichText text={st.text} />
+                  </p>
+                </li>
+              ))}
+            </ol>
+          )}
+          {s.tables?.map((t) => (
+            <div class="table-block">
+              {t.caption && <p class="table-caption"><RichText text={t.caption} /></p>}
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      {t.head.map((h) => (
+                        <th>
+                          <RichText text={h} />
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {t.rows.map((r) => (
+                      <tr>
+                        {r.map((cell) => (
+                          <td>
+                            <RichText text={cell} />
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ))}
+        </section>
+      ))
+    }
+
+    {
+      videos.length > 0 && (
+        <section class="block" id="video">
           <h2>動画</h2>
           <div class="videos">
             {videos.map((v) => (
@@ -89,6 +191,8 @@ const videos = (circle.videos ?? [])
         </section>
       )
     }
+
+    <a class="back back-bottom" href={`${base}/#circle`}>← Club Activities に戻る</a>
   </main>
 </Base>
 
@@ -106,6 +210,12 @@ const videos = (circle.videos ?? [])
   }
   .back:hover {
     color: var(--accent);
+  }
+  .back-bottom {
+    margin: 8px 0 0;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    width: 100%;
   }
   .head {
     margin-bottom: 40px;
@@ -135,6 +245,12 @@ const videos = (circle.videos ?? [])
     flex-wrap: wrap;
     gap: 8px;
     margin-top: 18px;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 24px;
   }
   .block {
     margin-bottom: 40px;
@@ -170,6 +286,181 @@ const videos = (circle.videos ?? [])
     font-size: 16px;
     line-height: 1.85;
   }
+  .text + .kv {
+    margin-top: 20px;
+  }
+  .lead {
+    font-size: 16px;
+    line-height: 1.85;
+  }
+  .lead + * {
+    margin-top: 20px;
+  }
+
+  /* ラベルと値の一覧 */
+  .kv {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .kv dt,
+  .kv dd {
+    padding: 11px 18px;
+    border-top: 1px solid var(--border);
+  }
+  .kv dt:first-of-type,
+  .kv dd:first-of-type {
+    border-top: none;
+  }
+  .kv dt {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dim);
+    white-space: nowrap;
+    padding-top: 12px;
+  }
+  .kv dd {
+    font-size: 15px;
+    padding-left: 0;
+  }
+
+  .points {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .points li {
+    position: relative;
+    padding-left: 22px;
+    font-size: 15px;
+    line-height: 1.85;
+  }
+  .points li::before {
+    content: "▹";
+    position: absolute;
+    left: 0;
+    color: var(--accent-2);
+  }
+
+  /* ゲーム開発に活かせること・こだわった設計 */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    gap: 12px;
+  }
+  .info-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+  }
+  .info-card h3 {
+    font-size: 16px;
+    color: var(--accent);
+    margin-bottom: 0;
+  }
+  .info-card p {
+    font-size: 15px;
+    line-height: 1.8;
+  }
+
+  /* 制作の流れ */
+  .steps {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .step {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
+  .step-head {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    margin-bottom: 6px;
+  }
+  .step-head h3 {
+    font-size: 17px;
+    color: var(--text);
+    margin-bottom: 0;
+  }
+  .step-num {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 14px;
+    color: var(--accent);
+  }
+  .step p {
+    font-size: 15px;
+    line-height: 1.85;
+  }
+  .badge {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 1px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+    color: var(--tag-text);
+    background: var(--tag-bg);
+    border: 1px solid var(--tag-border);
+  }
+
+  /* 表 */
+  .table-block + .table-block {
+    margin-top: 24px;
+  }
+  .table-caption {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .table-wrap {
+    overflow-x: auto;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  table {
+    width: 100%;
+    min-width: 560px;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  th,
+  td {
+    text-align: left;
+    vertical-align: top;
+    padding: 10px 14px;
+    border-top: 1px solid var(--border);
+  }
+  thead th {
+    border-top: none;
+    font-weight: 600;
+    color: var(--text-dim);
+    background: var(--bg-soft);
+  }
+  td:first-child {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  /* 最後の列は「ディレクター」「メイン」など短い語なので折り返さない */
+  th:last-child,
+  td:last-child {
+    white-space: nowrap;
+  }
+
   .videos {
     display: flex;
     flex-direction: column;
@@ -201,5 +492,18 @@ const videos = (circle.videos ?? [])
     font-size: 15px;
     line-height: 1.85;
     color: var(--text-dim);
+  }
+
+  @media (max-width: 560px) {
+    .kv {
+      grid-template-columns: 1fr;
+    }
+    .kv dt {
+      padding-bottom: 0;
+    }
+    .kv dd {
+      border-top: none;
+      padding: 2px 18px 11px;
+    }
   }
 </style>
