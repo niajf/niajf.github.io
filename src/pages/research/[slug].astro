@@ -27,14 +27,14 @@ const pad = (n) => String(n).padStart(2, "0");
     <header class="head">
       <p class="meta">
         <span class="yr">{research.year}</span>
-        <span class="conference">{research.conference}</span>
+        <span class="conference"><RichText text={research.conference} /></span>
       </p>
-      <h1>{research.title}</h1>
-      {research.authors && <p class="authors">{research.authors}</p>}
+      <h1><RichText text={research.title} /></h1>
+      {research.authors && <p class="authors"><RichText text={research.authors} /></p>}
       {
         research.awards?.length > 0 && (
           <ul class="awards">
-            {research.awards.map((a) => <li>{a}</li>)}
+            {research.awards.map((a) => <li><RichText text={a} /></li>)}
           </ul>
         )
       }
@@ -66,12 +66,12 @@ const pad = (n) => String(n).padStart(2, "0");
                   {m.value}
                   {m.unit && <span class="metric-unit">{m.unit}</span>}
                 </p>
-                <p class="metric-label">{m.label}</p>
-                {m.note && <p class="metric-note">{m.note}</p>}
+                <p class="metric-label"><RichText text={m.label} /></p>
+                {m.note && <p class="metric-note"><RichText text={m.note} /></p>}
               </div>
             ))}
           </div>
-          {research.metricsNote && <p class="note">※ {research.metricsNote}</p>}
+          {research.metricsNote && <p class="note">※ <RichText text={research.metricsNote} /></p>}
         </section>
       )
     }
@@ -89,8 +89,8 @@ const pad = (n) => String(n).padStart(2, "0");
             <dl class="kv">
               {research.spec.map((s) => (
                 <>
-                  <dt>{s.label}</dt>
-                  <dd>{s.value}</dd>
+                  <dt><RichText text={s.label} /></dt>
+                  <dd><RichText text={s.value} /></dd>
                 </>
               ))}
             </dl>
@@ -102,7 +102,7 @@ const pad = (n) => String(n).padStart(2, "0");
     {
       sections.map((s) => (
         <section class="block">
-          <h2>{s.title}</h2>
+          <h2><RichText text={s.title} /></h2>
           {s.summary && (
             <p class="lead">
               <RichText text={s.summary} />
@@ -121,7 +121,7 @@ const pad = (n) => String(n).padStart(2, "0");
             <div class="cards">
               {s.cards.map((c) => (
                 <div class="info-card">
-                  <h3>{c.title}</h3>
+                  <h3><RichText text={c.title} /></h3>
                   <p>
                     <RichText text={c.text} />
                   </p>
@@ -145,11 +145,11 @@ const pad = (n) => String(n).padStart(2, "0");
                 {s.gallery.items.map((g) => (
                   <li>
                     <img src={base + g.src} alt={g.label} loading="lazy" />
-                    <span>{g.label}</span>
+                    <span><RichText text={g.label} /></span>
                   </li>
                 ))}
               </ol>
-              {s.gallery.caption && <figcaption>{s.gallery.caption}</figcaption>}
+              {s.gallery.caption && <figcaption><RichText text={s.gallery.caption} /></figcaption>}
             </figure>
           )}
           {s.steps && (
@@ -158,7 +158,7 @@ const pad = (n) => String(n).padStart(2, "0");
                 <li class="step">
                   <div class="step-head">
                     <span class="step-num">{pad(i + 1)}</span>
-                    <h3>{st.title}</h3>
+                    <h3><RichText text={st.title} /></h3>
                     {st.origin && <span class:list={["badge", st.origin]}>{origins[st.origin]}</span>}
                   </div>
                   <p>
@@ -171,13 +171,15 @@ const pad = (n) => String(n).padStart(2, "0");
           )}
           {s.tables?.map((t) => (
             <div class="table-block">
-              {t.caption && <p class="table-caption">{t.caption}</p>}
+              {t.caption && <p class="table-caption"><RichText text={t.caption} /></p>}
               <div class="table-wrap">
                 <table>
                   <thead>
                     <tr>
                       {t.head.map((h) => (
-                        <th>{h}</th>
+                        <th>
+                          <RichText text={h} />
+                        </th>
                       ))}
                     </tr>
                   </thead>
@@ -185,7 +187,9 @@ const pad = (n) => String(n).padStart(2, "0");
                     {t.rows.map((r) => (
                       <tr>
                         {r.map((cell) => (
-                          <td>{cell}</td>
+                          <td>
+                            <RichText text={cell} />
+                          </td>
                         ))}
                       </tr>
                     ))}
@@ -194,7 +198,9 @@ const pad = (n) => String(n).padStart(2, "0");
                     <tfoot>
                       <tr>
                         {t.footer.map((cell) => (
-                          <td>{cell}</td>
+                          <td>
+                            <RichText text={cell} />
+                          </td>
                         ))}
                       </tr>
                     </tfoot>
