@@ -1,4 +1,5 @@
 ---
+import RichText from "./RichText.astro";
 import { youtubeId } from "../utils/youtube.js";
 
 const { circle } = Astro.props;
@@ -18,18 +19,18 @@ const thumb = circle.thumbnail
       thumb ? (
         <img src={thumb} alt={circle.title} loading="lazy" />
       ) : (
-        <div class="thumb-placeholder">{circle.title}</div>
+        <div class="thumb-placeholder"><RichText text={circle.title} /></div>
       )
     }
     <span class="year">{circle.year}</span>
   </div>
   <div class="body">
-    <p class="circle">{circle.circle}</p>
-    <h3>{circle.title}</h3>
+    <p class="circle"><RichText text={circle.circle} /></p>
+    <h3><RichText text={circle.title} /></h3>
     {
       circle.awards?.length > 0 && (
         <ul class="awards">
-          {circle.awards.map((a) => <li>{a}</li>)}
+          {circle.awards.map((a) => <li><RichText text={a} /></li>)}
         </ul>
       )
     }

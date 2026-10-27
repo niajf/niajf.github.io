@@ -1,10 +1,14 @@
 ---
-// `バッククォート` で囲んだ部分をインラインコードとして表示する
+// `バッククォート` で囲んだ部分をインラインコードとして、\n を改行として表示する
 const { text } = Astro.props;
 const parts = String(text ?? "").split("`");
 ---
 
-{parts.map((part, i) => (i % 2 === 1 ? <code>{part}</code> : part))}
+{
+  parts.map((part, i) =>
+    i % 2 === 1 ? <code>{part}</code> : part.split("\n").map((line, j) => (j > 0 ? [<br />, line] : line)),
+  )
+}
 
 <style>
   code {

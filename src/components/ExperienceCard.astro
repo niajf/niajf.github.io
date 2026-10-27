@@ -1,4 +1,6 @@
 ---
+import RichText from "./RichText.astro";
+
 const { experience } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const thumb = experience.thumbnail ? base + experience.thumbnail : null;
@@ -10,14 +12,14 @@ const thumb = experience.thumbnail ? base + experience.thumbnail : null;
       thumb ? (
         <img src={thumb} alt={experience.title} loading="lazy" />
       ) : (
-        <div class="thumb-placeholder">{experience.title}</div>
+        <div class="thumb-placeholder"><RichText text={experience.title} /></div>
       )
     }
-    <span class="period">{experience.period}</span>
+    <span class="period"><RichText text={experience.period} /></span>
   </div>
   <div class="body">
-    <p class="org">{experience.org}</p>
-    <h3>{experience.title}</h3>
+    <p class="org"><RichText text={experience.org} /></p>
+    <h3><RichText text={experience.title} /></h3>
     <div class="tags">
       {experience.tags.slice(0, 4).map((t) => <span class="tag">{t}</span>)}
     </div>

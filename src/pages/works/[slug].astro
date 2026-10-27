@@ -26,8 +26,8 @@ const pad = (n) => String(n).padStart(2, "0");
 
     <header class="head">
       <span class="yr">{work.year}</span>
-      <h1>{work.title}</h1>
-      <p class="tagline">{work.tagline}</p>
+      <h1><RichText text={work.title} /></h1>
+      <p class="tagline"><RichText text={work.tagline} /></p>
       <div class="tags">
         {work.tags.map((t) => <span class="tag">{t}</span>)}
       </div>
@@ -80,7 +80,7 @@ const pad = (n) => String(n).padStart(2, "0");
 
     <section class="section">
       <h2>概要</h2>
-      <p>{work.description}</p>
+      <p><RichText text={work.description} /></p>
       {
         (period.length > 0 || work.stack) && (
           <dl class="kv spec">
@@ -89,15 +89,15 @@ const pad = (n) => String(n).padStart(2, "0");
                 <dt>開発期間</dt>
                 <dd>
                   {period.map((p) => (
-                    <span class="line">{p}</span>
+                    <span class="line"><RichText text={p} /></span>
                   ))}
                 </dd>
               </>
             )}
             {work.stack?.map((s) => (
               <>
-                <dt>{s.label}</dt>
-                <dd>{s.value}</dd>
+                <dt><RichText text={s.label} /></dt>
+                <dd><RichText text={s.value} /></dd>
               </>
             ))}
           </dl>
@@ -109,11 +109,11 @@ const pad = (n) => String(n).padStart(2, "0");
       work.gameplay && (
         <section class="section">
           <h2>ゲーム概要</h2>
-          {work.gameplay.summary && <p class="lead">{work.gameplay.summary}</p>}
+          {work.gameplay.summary && <p class="lead"><RichText text={work.gameplay.summary} /></p>}
           <dl class="kv">
             {work.gameplay.items.map((item) => (
               <>
-                <dt>{item.label}</dt>
+                <dt><RichText text={item.label} /></dt>
                 <dd>
                   <RichText text={item.text} />
                 </dd>
@@ -146,11 +146,11 @@ const pad = (n) => String(n).padStart(2, "0");
               <tbody>
                 {work.algorithms.rows.map((r) => (
                   <tr>
-                    <td class="feature">{r.feature}</td>
+                    <td class="feature"><RichText text={r.feature} /></td>
                     <td>
                       <RichText text={r.method} />
                     </td>
-                    <td class="complexity">{r.complexity}</td>
+                    <td class="complexity"><RichText text={r.complexity} /></td>
                     <td>
                       <RichText text={r.aim} />
                     </td>
@@ -159,7 +159,7 @@ const pad = (n) => String(n).padStart(2, "0");
               </tbody>
             </table>
           </div>
-          {work.algorithms.note && <p class="note">※ {work.algorithms.note}</p>}
+          {work.algorithms.note && <p class="note">※ <RichText text={work.algorithms.note} /></p>}
         </section>
       )
     }
@@ -173,7 +173,7 @@ const pad = (n) => String(n).padStart(2, "0");
               <li class="hl">
                 <div class="hl-head">
                   <span class="hl-num">{pad(i + 1)}</span>
-                  <h3>{h.title}</h3>
+                  <h3><RichText text={h.title} /></h3>
                   {h.badge && <span class="badge">{h.badge}</span>}
                 </div>
                 {h.summary && (
@@ -183,7 +183,7 @@ const pad = (n) => String(n).padStart(2, "0");
                 )}
                 {h.code?.map((c) => (
                   <figure class="code">
-                    {c.label && <figcaption>{c.label}</figcaption>}
+                    {c.label && <figcaption><RichText text={c.label} /></figcaption>}
                     <Code code={c.src.join("\n")} lang={c.lang} theme="github-dark" />
                   </figure>
                 ))}
@@ -206,11 +206,11 @@ const pad = (n) => String(n).padStart(2, "0");
     {
       work.updates && (
         <section class="section">
-          <h2>{work.updates.title}</h2>
+          <h2><RichText text={work.updates.title} /></h2>
           <dl class="kv">
             {work.updates.items.map((item) => (
               <>
-                <dt>{item.label}</dt>
+                <dt><RichText text={item.label} /></dt>
                 <dd>
                   <RichText text={item.text} />
                 </dd>
@@ -228,7 +228,7 @@ const pad = (n) => String(n).padStart(2, "0");
           <ul class="features">
             {work.features.map((f) => (
               <li>
-                <strong>{f.label}</strong>
+                <strong><RichText text={f.label} /></strong>
                 <span>
                   <RichText text={f.text} />
                 </span>

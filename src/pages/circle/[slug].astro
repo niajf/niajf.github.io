@@ -1,5 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
+import RichText from "../../components/RichText.astro";
 import circleList from "../../data/circle.json";
 import { youtubeId } from "../../utils/youtube.js";
 
@@ -26,9 +27,9 @@ const videos = (circle.videos ?? [])
     <header class="head">
       <p class="meta">
         <span class="yr">{circle.year}</span>
-        <span class="circle">{circle.circle}</span>
+        <span class="circle"><RichText text={circle.circle} /></span>
       </p>
-      <h1>{circle.title}</h1>
+      <h1><RichText text={circle.title} /></h1>
       <div class="tags">
         {circle.tags.map((t) => <span class="tag">{t}</span>)}
       </div>
@@ -39,7 +40,7 @@ const videos = (circle.videos ?? [])
         <section class="block">
           <h2>受賞歴</h2>
           <ul class="awards">
-            {circle.awards.map((a) => <li>{a}</li>)}
+            {circle.awards.map((a) => <li><RichText text={a} /></li>)}
           </ul>
         </section>
       )
@@ -51,7 +52,7 @@ const videos = (circle.videos ?? [])
           <h2>作品について</h2>
           <div class="text">
             {paragraphs.map((p) => (
-              <p>{p}</p>
+              <p><RichText text={p} /></p>
             ))}
           </div>
         </section>
@@ -65,7 +66,7 @@ const videos = (circle.videos ?? [])
           <div class="videos">
             {videos.map((v) => (
               <div class="video">
-                {v.title && <h3>{v.title}</h3>}
+                {v.title && <h3><RichText text={v.title} /></h3>}
                 {v.id ? (
                   <div class="frame">
                     <iframe
@@ -81,7 +82,7 @@ const videos = (circle.videos ?? [])
                     動画を開く
                   </a>
                 )}
-                {v.description && <p class="video-desc">{v.description}</p>}
+                {v.description && <p class="video-desc"><RichText text={v.description} /></p>}
               </div>
             ))}
           </div>

@@ -1,5 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
+import RichText from "../../components/RichText.astro";
 import experiences from "../../data/experiences.json";
 
 export function getStaticPaths() {
@@ -28,17 +29,17 @@ const blocks = [
 
     <header class="head">
       <p class="eyebrow">
-        <span class="period">{experience.period}</span>
-        <span class="org">{experience.org}</span>
+        <span class="period"><RichText text={experience.period} /></span>
+        <span class="org"><RichText text={experience.org} /></span>
       </p>
-      <h1>{experience.title}</h1>
+      <h1><RichText text={experience.title} /></h1>
       {
         meta.length > 0 && (
           <p class="meta">
             {meta.map((m, i) => (
               <>
                 {i > 0 && <span class="sep">/</span>}
-                <span>{m}</span>
+                <span><RichText text={m} /></span>
               </>
             ))}
           </p>
@@ -61,11 +62,11 @@ const blocks = [
       blocks.map((b) => (
         <section class="block">
           <h2>{b.label}</h2>
-          {b.data.summary && <p class="summary">{b.data.summary}</p>}
+          {b.data.summary && <p class="summary"><RichText text={b.data.summary} /></p>}
           {b.data.points?.length > 0 && (
             <ul class="points">
               {b.data.points.map((p) => (
-                <li>{p}</li>
+                <li><RichText text={p} /></li>
               ))}
             </ul>
           )}
