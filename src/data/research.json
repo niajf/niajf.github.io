@@ -4,7 +4,8 @@
     "title": "多層視覚統合に基づく\nゼロショット植生認識フレームワークの構築",
     "conference": "2026年度 第54回 画像電子学会年次大会",
     "year": 2026,
-    "thumbnail": "",
+    "featured": true,
+    "thumbnail": "/research/research-1/system_remake_with_source.png",
     "slides": "/research/2026年度第54回画像電⼦学会年次⼤会_発表スライド.pdf",
     "video": "https://www.youtube.com/embed/0_Due4JAndU",
     "awards": ["学生発表奨励賞　受賞"],
@@ -74,7 +75,7 @@
         "summary": "フレームワークは「① 個体検出」と「② 個体分類」の2段階です。① の多層視覚統合が本研究の提案で、② は先行研究 Weeds are Weird [Chong+, 2025] の分類手法を利用しています。",
         "figures": [
           {
-            "src": "/research/research-1/framework.jpg",
+            "src": "/research/research-1/system_remake_with_source.png",
             "caption": "フレームワークの全体構造"
           }
         ],

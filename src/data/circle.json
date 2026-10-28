@@ -4,7 +4,8 @@
     "title": "響気",
     "circle": "信州大学YOSAKOI祭りサークル和っしょい",
     "year": 2024,
-    "thumbnail": "",
+    "featured": true,
+    "thumbnail": "/circle/hibiki_thum.jpeg",
     "tags": ["チーム制作", "よさこい", "ディレクション"],
     "awards": [
       "第26回　にっぽんど真ん中祭り　テレどまつり　奨励賞",

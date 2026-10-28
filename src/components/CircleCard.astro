@@ -13,7 +13,7 @@ const thumb = circle.thumbnail
     : null;
 ---
 
-<a class="card" href={`${base}/circle/${circle.slug}/`}>
+<a class:list={["card", { featured: circle.featured }]} href={`${base}/circle/${circle.slug}/`}>
   <div class="thumb">
     {
       thumb ? (
@@ -22,6 +22,7 @@ const thumb = circle.thumbnail
         <div class="thumb-placeholder"><RichText text={circle.title} /></div>
       )
     }
+    {circle.featured && <span class="pick">PICK UP</span>}
     <span class="year">{circle.year}</span>
   </div>
   <div class="body">
@@ -52,6 +53,11 @@ const thumb = circle.thumbnail
     overflow: hidden;
     box-shadow: var(--shadow);
     transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  /* 一押しの活動：行の横幅いっぱいに広げ、枠線とバッジで目立たせる */
+  .card.featured {
+    grid-column: 1 / -1;
+    border: 2px solid var(--accent);
   }
   .card:hover {
     transform: translateY(-4px);
@@ -152,5 +158,30 @@ const thumb = circle.thumbnail
   .card:hover .arrow {
     opacity: 1;
     transform: translateX(0);
+  }
+  .pick {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--on-accent);
+    background: var(--accent);
+    padding: 2px 10px;
+    border-radius: 6px;
+  }
+  /* PC では画像を左、説明を右に並べる */
+  @media (min-width: 760px) {
+    .card.featured {
+      flex-direction: row;
+    }
+    .card.featured .thumb {
+      flex: 0 0 58%;
+    }
+    .card.featured .body {
+      align-self: center;
+      padding: 28px 32px;
+    }
   }
 </style>

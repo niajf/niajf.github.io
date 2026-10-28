@@ -6,7 +6,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const thumb = work.thumbnail ? base + work.thumbnail : null;
 ---
 
-<a class="card" href={`${base}/works/${work.slug}/`}>
+<a class:list={["card", { featured: work.featured }]} href={`${base}/works/${work.slug}/`}>
   <div class="thumb">
     {
       thumb ? (
@@ -15,6 +15,7 @@ const thumb = work.thumbnail ? base + work.thumbnail : null;
         <div class="thumb-placeholder"><RichText text={work.title} /></div>
       )
     }
+    {work.featured && <span class="pick">PICK UP</span>}
     <span class="year">{work.year}</span>
   </div>
   <div class="body">
@@ -38,6 +39,11 @@ const thumb = work.thumbnail ? base + work.thumbnail : null;
     overflow: hidden;
     box-shadow: var(--shadow);
     transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  /* 一押し作品：行の横幅いっぱいに広げ、枠線とバッジで目立たせる */
+  .card.featured {
+    grid-column: 1 / -1;
+    border: 2px solid var(--accent);
   }
   .card:hover {
     transform: translateY(-4px);
@@ -113,5 +119,30 @@ const thumb = work.thumbnail ? base + work.thumbnail : null;
   .card:hover .arrow {
     opacity: 1;
     transform: translateX(0);
+  }
+  .pick {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--on-accent);
+    background: var(--accent);
+    padding: 2px 10px;
+    border-radius: 6px;
+  }
+  /* PC では画像を左、説明を右に並べる */
+  @media (min-width: 760px) {
+    .card.featured {
+      flex-direction: row;
+    }
+    .card.featured .thumb {
+      flex: 0 0 58%;
+    }
+    .card.featured .body {
+      align-self: center;
+      padding: 28px 32px;
+    }
   }
 </style>
