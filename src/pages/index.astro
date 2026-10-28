@@ -39,8 +39,8 @@ const allTags = [
         </a>
         <a class="btn btn-ghost" href="#works">作品を見る ↓</a>
         <a class="btn btn-ghost" href="#research">研究を見る ↓</a>
-        <a class="btn btn-ghost" href="#experience">経験を見る ↓</a>
         <a class="btn btn-ghost" href="#circle">サークル活動を見る ↓</a>
+        <a class="btn btn-ghost" href="#experience">経験を見る ↓</a>
       </div>
       <div class="skill-strip">
         {allTags.map((t) => <span class="tag">{t}</span>)}
@@ -66,6 +66,16 @@ const allTags = [
         {sortedResearch.map((r) => <ResearchCard research={r} />)}
       </div>
     </section>
+    
+    <section id="circle" class="container">
+      <div class="section-head">
+        <h2>Club Activities</h2>
+        <span class="count">{circleList.length} activities</span>
+      </div>
+      <div class="grid">
+        {sortedCircle.map((c) => <CircleCard circle={c} />)}
+      </div>
+    </section>
 
     <section id="experience" class="container">
       <div class="section-head">
@@ -74,16 +84,6 @@ const allTags = [
       </div>
       <div class="grid">
         {experiences.map((e) => <ExperienceCard experience={e} />)}
-      </div>
-    </section>
-
-    <section id="circle" class="container">
-      <div class="section-head">
-        <h2>Club Activities</h2>
-        <span class="count">{circleList.length} activities</span>
-      </div>
-      <div class="grid">
-        {sortedCircle.map((c) => <CircleCard circle={c} />)}
       </div>
     </section>
 
