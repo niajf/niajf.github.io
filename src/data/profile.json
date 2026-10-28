@@ -19,6 +19,7 @@
     { "label": "出身", "value": "滋賀県（高校まで）・長野県（大学から）" },
     { "label": "趣味", "value": "よさこい鑑賞・技術ブログ閲覧" },
     { "label": "GitHub", "value": "niajf", "url": "https://github.com/niajf" },
+    { "label": "AtCoder", "value": "niajf（レーティング 643・茶色）", "url": "https://atcoder.jp/users/niajf" },
     { "label": "メール", "value": "jintengd462@gmail.com", "url": "" },
     { "label": "資格1", "value": "2022年：基本情報技術者試験 合格"},
     { "label": "資格2", "value": "2025年：TOEIC L&R 720点"}

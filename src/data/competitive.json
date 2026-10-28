@@ -1,0 +1,90 @@
+[
+  {
+    "slug": "atcoder",
+    "title": "競技プログラミングの記録",
+    "platform": "AtCoder（ID: niajf）",
+    "period": "2025年12月〜",
+    "summary": "2025年12月から AtCoder の過去問とコンテストに取り組み、解いた問題ごとに「アプローチ・詰まったポイント・学んだこと」を GitHub の issue に記録しています。D問題を自力で解ける割合は、練習を始めた頃の26%から63%まで上がりました。",
+    "tags": ["C++", "BFS", "DP", "ダイクストラ法", "二分探索", "累積和", "bit全探索"],
+    "links": [
+      { "label": "AtCoder のプロフィール", "url": "https://atcoder.jp/users/niajf" },
+      { "label": "振り返りの記録（GitHub Issues）", "url": "https://github.com/niajf/Algorithm/issues?q=is%3Aissue" },
+      { "label": "解答コード（GitHub）", "url": "https://github.com/niajf/Algorithm" }
+    ],
+    "history": [
+      { "date": "2026-01-31", "contest": "ABC443", "rated": false, "perf": null, "rating": 0 },
+      { "date": "2026-02-14", "contest": "ABC445", "rated": true, "perf": -452, "rating": 2 },
+      { "date": "2026-03-07", "contest": "ABC448", "rated": true, "perf": 425, "rating": 29 },
+      { "date": "2026-03-14", "contest": "ABC449", "rated": true, "perf": 445, "rating": 68 },
+      { "date": "2026-03-21", "contest": "ABC450", "rated": true, "perf": 496, "rating": 112 },
+      { "date": "2026-03-28", "contest": "ABC451", "rated": true, "perf": 479, "rating": 151 },
+      { "date": "2026-04-04", "contest": "ABC452", "rated": true, "perf": 899, "rating": 248 },
+      { "date": "2026-04-11", "contest": "ABC453", "rated": true, "perf": 596, "rating": 291 },
+      { "date": "2026-04-18", "contest": "ABC454", "rated": true, "perf": 820, "rating": 368 },
+      { "date": "2026-04-25", "contest": "ABC455", "rated": true, "perf": 838, "rating": 443 },
+      { "date": "2026-05-02", "contest": "ABC456", "rated": true, "perf": 803, "rating": 496 },
+      { "date": "2026-05-09", "contest": "ABC457", "rated": true, "perf": 778, "rating": 535 },
+      { "date": "2026-05-16", "contest": "ABC458", "rated": true, "perf": 637, "rating": 547 },
+      { "date": "2026-05-23", "contest": "ABC459", "rated": true, "perf": 1046, "rating": 620 },
+      { "date": "2026-05-30", "contest": "ABC460", "rated": true, "perf": 681, "rating": 626 },
+      { "date": "2026-10-11", "contest": "ABC479", "rated": true, "perf": 768, "rating": 643 }
+    ],
+    "results": [
+      { "label": "自力で正解", "count": 56 },
+      { "label": "解説を見て正解", "count": 39 },
+      { "label": "AI の支援ありで正解", "count": 11 },
+      { "label": "未正解", "count": 2 }
+    ],
+    "solveRate": {
+      "title": "D問題を自力で解けた割合",
+      "summary": "ABC の D問題を、解説や AI のヒントを使わずに解けた割合です。時期ごとに、振り返りを記録した問題から数えています。",
+      "phases": [
+        { "label": "D問題を中心に練習", "period": "2026年1〜3月", "solved": 10, "total": 38 },
+        { "label": "コンテスト参加と復習", "period": "2026年3〜5月", "solved": 5, "total": 10 },
+        { "label": "練習を再開", "period": "2026年9〜10月", "solved": 5, "total": 8 }
+      ],
+      "note": "2026年9月以降は8問と少ないため、割合は目安です。"
+    },
+    "sections": [
+      {
+        "title": "学習の進め方",
+        "summary": "問題を解いたら必ず振り返りを書き、そこで見つけた弱点を次の練習で補う、という流れを続けてきました。",
+        "steps": [
+          {
+            "title": "C問題を毎日1問",
+            "date": "2025年12月〜2026年1月",
+            "text": "AtCoder Beginner Contest（ABC）の過去問から C問題を1日1問解き、「正答具合・間違えた理由・勉強になったこと」を GitHub の issue に記録しました。31問のうち19問を自力で解きました。"
+          },
+          {
+            "title": "D問題に挑戦",
+            "date": "2026年1月〜3月",
+            "text": "練習の中心を D問題に移しましたが、自力で解けたのは38問中10問でした。振り返りから動的計画法（DP）の理解が足りないと気づき、例題を使って基礎から学び直しました。"
+          },
+          {
+            "title": "コンテストに毎週参加",
+            "date": "2026年1月〜5月",
+            "text": "2026年1月末から ABC に参加し始め、3月からは13週続けて毎週参加しました。コンテスト後は C・D問題を復習し、難易度（Diff）・アプローチ・詰まったポイント・習得スキルを記録する形式に改めました。レーティングと「AC した最高 Diff」の推移表もつけています。"
+          },
+          {
+            "title": "練習を再開",
+            "date": "2026年9月〜",
+            "text": "過去回の C・D問題の復習を再開し、10月には ABC479 で A〜D の4問を解きました（7341人中4258位）。この期間は、D問題8問のうち5問を自力で解いています。"
+          }
+        ]
+      },
+      {
+        "title": "ゲーム開発に活かせること",
+        "cards": [
+          {
+            "title": "経路探索をゲームの AI に活かす",
+            "text": "グリッド上の幅優先探索（BFS）は、11件の振り返りに登場する、繰り返し練習してきたアルゴリズムです。『Muzui Mazui Mazey!』では、同じ考え方で敵 AI の経路探索を実装しました。"
+          },
+          {
+            "title": "実装の前に計算量とメモリを見積もる",
+            "text": "ABC479 C では、DP で解けそうだと考えてそのまま提出し、メモリ超過（MLE）になりました。bit全探索で解き直し、「計算量とメモリ量が妥当かを考える時間を作る」と振り返っています。1フレームの処理時間やメモリに上限があるゲーム開発でも、この見積もりを習慣にします。"
+          }
+        ]
+      }
+    ]
+  }
+]

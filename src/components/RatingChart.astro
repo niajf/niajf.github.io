@@ -1,0 +1,310 @@
+---
+import { ratingBands } from "../utils/atcoder.js";
+
+const { history } = Astro.props;
+const rated = history.filter((h) => h.rated);
+const fmt = (d) => d.replaceAll("-", "/");
+---
+
+<figure
+  class="rating-chart"
+  tabindex="0"
+  aria-label="レーティング推移のグラフ。左右の矢印キーで各回の値を確認できます。"
+  data-points={JSON.stringify(rated)}
+  data-bands={JSON.stringify(ratingBands)}
+>
+  <div class="plot"></div>
+  <div class="tip" hidden>
+    <p class="tip-value"></p>
+    <p class="tip-label"></p>
+    <p class="tip-sub"></p>
+  </div>
+</figure>
+
+<details class="table-view">
+  <summary>表で見る</summary>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>日付</th><th>コンテスト</th><th>パフォーマンス</th><th>レーティング</th></tr>
+      </thead>
+      <tbody>
+        {
+          history.map((h) => (
+            <tr>
+              <td>{fmt(h.date)}</td>
+              <td>{h.contest}</td>
+              <td>{h.rated ? h.perf : "—（レート対象外）"}</td>
+              <td>{h.rated ? h.rating : "—"}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+</details>
+
+<script>
+  const NS = "http://www.w3.org/2000/svg";
+  const DAY = 86400000;
+
+  const el = (name, attrs, parent) => {
+    const e = document.createElementNS(NS, name);
+    for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+    parent.appendChild(e);
+    return e;
+  };
+
+  // グラフは表示幅に合わせて描き直す（文字が縮まないように viewBox で拡縮しない）
+  function setup(fig) {
+    const pts = JSON.parse(fig.dataset.points);
+    const bands = JSON.parse(fig.dataset.bands);
+    const plot = fig.querySelector(".plot");
+    const tip = fig.querySelector(".tip");
+    const t = pts.map((p) => Date.parse(p.date));
+    let show = () => {};
+    let active = -1;
+
+    function draw() {
+      plot.replaceChildren();
+      tip.hidden = true;
+      active = -1;
+      const W = plot.clientWidth;
+      const H = W < 560 ? 220 : 280;
+      const m = { top: 12, right: 44, bottom: 28, left: 40 };
+      const x0 = t[0] - 10 * DAY;
+      const x1 = t.at(-1) + 10 * DAY;
+      const yMax = Math.ceil(Math.max(800, ...pts.map((p) => p.rating)) / 400) * 400;
+      const X = (v) => m.left + ((v - x0) / (x1 - x0)) * (W - m.left - m.right);
+      const Y = (v) => m.top + (1 - v / yMax) * (H - m.top - m.bottom);
+      const svg = el("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, "aria-hidden": "true" }, plot);
+
+      // AtCoder の色の区分を薄い帯で示す
+      for (const b of bands) {
+        if (b.min >= yMax) continue;
+        const hi = Math.min(b.max ?? Infinity, yMax);
+        el("rect", { x: m.left, y: Y(hi), width: W - m.left - m.right, height: Y(b.min) - Y(hi), fill: b.hex, class: "band" }, svg);
+        el("text", { x: m.left + 8, y: Y(hi) + 16, class: "band-label" }, svg).textContent = `${b.name}（${b.min}〜）`;
+      }
+
+      for (let v = 0; v <= yMax; v += 200) {
+        el("line", { x1: m.left, x2: W - m.right, y1: Y(v), y2: Y(v), class: v === 0 ? "axis" : "grid" }, svg);
+        el("text", { x: m.left - 8, y: Y(v) + 4, class: "tick tick-y" }, svg).textContent = v;
+      }
+
+      // 月の目盛り。狭い画面では1か月おきにする
+      const months = [];
+      for (let d = new Date(x0); d.getTime() <= x1; d.setMonth(d.getMonth() + 1, 1)) {
+        const s = new Date(d.getFullYear(), d.getMonth(), 1).getTime();
+        if (s >= x0) months.push(new Date(s));
+      }
+      const step = X(x0 + 30 * DAY) - X(x0) < 40 ? 2 : 1;
+      months.forEach((d, i) => {
+        if (i % step) return;
+        el("text", { x: X(d.getTime()), y: H - 8, class: "tick tick-x" }, svg).textContent = `${d.getMonth() + 1}月`;
+      });
+
+      const path = "M" + pts.map((p, i) => `${X(t[i])},${Y(p.rating)}`).join("L");
+      el("path", { d: `${path}L${X(t.at(-1))},${Y(0)}L${X(t[0])},${Y(0)}Z`, class: "area" }, svg);
+      el("path", { d: path, class: "line" }, svg);
+      pts.forEach((p, i) => el("circle", { cx: X(t[i]), cy: Y(p.rating), r: 4, class: "dot" }, svg));
+
+      const last = pts.at(-1);
+      el("text", { x: X(t.at(-1)) + 10, y: Y(last.rating) + 5, class: "end-label" }, svg).textContent = last.rating;
+
+      const cross = el("line", { y1: m.top, y2: H - m.bottom, class: "cross", visibility: "hidden" }, svg);
+      const ring = el("circle", { r: 6, class: "dot dot-active", visibility: "hidden" }, svg);
+      const hit = el("rect", { x: m.left, y: 0, width: W - m.left - m.right, height: H, class: "hit" }, svg);
+
+      show = (i) => {
+        active = i;
+        const p = pts[i];
+        const x = X(t[i]);
+        const y = Y(p.rating);
+        cross.setAttribute("x1", x);
+        cross.setAttribute("x2", x);
+        cross.setAttribute("visibility", "visible");
+        ring.setAttribute("cx", x);
+        ring.setAttribute("cy", y);
+        ring.setAttribute("visibility", "visible");
+        tip.querySelector(".tip-value").textContent = `レーティング ${p.rating}`;
+        tip.querySelector(".tip-label").textContent = `${p.contest}（${p.date.replaceAll("-", "/")}）`;
+        tip.querySelector(".tip-sub").textContent = `パフォーマンス ${p.perf}`;
+        tip.hidden = false;
+        // 右端からはみ出す場合は点の左側に出す
+        const left = x + 14 + tip.offsetWidth > W ? x - 14 - tip.offsetWidth : x + 14;
+        tip.style.left = `${plot.offsetLeft + Math.max(0, left)}px`;
+        tip.style.top = `${plot.offsetTop + Math.max(0, y - tip.offsetHeight - 10)}px`;
+      };
+      const hide = () => {
+        active = -1;
+        tip.hidden = true;
+        cross.setAttribute("visibility", "hidden");
+        ring.setAttribute("visibility", "hidden");
+      };
+
+      hit.addEventListener("pointermove", (e) => {
+        const px = e.clientX - svg.getBoundingClientRect().left;
+        let best = 0;
+        t.forEach((v, i) => {
+          if (Math.abs(X(v) - px) < Math.abs(X(t[best]) - px)) best = i;
+        });
+        if (best !== active) show(best);
+      });
+      hit.addEventListener("pointerleave", hide);
+      fig.onblur = hide;
+    }
+
+    fig.addEventListener("focus", () => show(pts.length - 1));
+    fig.addEventListener("keydown", (e) => {
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      e.preventDefault();
+      const next = (active < 0 ? pts.length - 1 : active) + (e.key === "ArrowLeft" ? -1 : 1);
+      show(Math.min(pts.length - 1, Math.max(0, next)));
+    });
+
+    let lastWidth = 0;
+    new ResizeObserver(() => {
+      if (plot.clientWidth === lastWidth) return;
+      lastWidth = plot.clientWidth;
+      draw();
+    }).observe(plot);
+  }
+
+  document.querySelectorAll(".rating-chart").forEach(setup);
+</script>
+
+<style>
+  .rating-chart {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 16px 12px 8px 4px;
+  }
+  .rating-chart:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .plot {
+    width: 100%;
+  }
+  .plot :global(svg) {
+    display: block;
+    overflow: visible;
+  }
+  .plot :global(.band) {
+    opacity: 0.08;
+  }
+  .plot :global(.band-label) {
+    font-size: 12px;
+    fill: var(--text-dim);
+  }
+  .plot :global(.grid) {
+    stroke: var(--bg-soft);
+    stroke-width: 1;
+  }
+  .plot :global(.axis) {
+    stroke: var(--border);
+    stroke-width: 1;
+  }
+  .plot :global(.tick) {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    fill: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .plot :global(.tick-y) {
+    text-anchor: end;
+  }
+  .plot :global(.tick-x) {
+    text-anchor: middle;
+  }
+  .plot :global(.area) {
+    fill: var(--accent);
+    opacity: 0.1;
+  }
+  .plot :global(.line) {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+  .plot :global(.dot) {
+    fill: var(--accent);
+    stroke: var(--card);
+    stroke-width: 2;
+  }
+  .plot :global(.end-label) {
+    font-size: 13px;
+    font-weight: 700;
+    fill: var(--text);
+  }
+  .plot :global(.cross) {
+    stroke: var(--text-dim);
+    stroke-width: 1;
+  }
+  .plot :global(.hit) {
+    fill: transparent;
+  }
+  .tip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 8px 12px;
+    white-space: nowrap;
+  }
+  .tip-value {
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .tip-label,
+  .tip-sub {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  /* 表で見る */
+  .table-view {
+    margin-top: 12px;
+  }
+  .table-view summary {
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+  .table-view summary:hover {
+    color: var(--accent);
+  }
+  .table-wrap {
+    margin-top: 10px;
+    overflow-x: auto;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  th,
+  td {
+    text-align: left;
+    padding: 8px 14px;
+    border-top: 1px solid var(--border);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  thead th {
+    border-top: none;
+    font-weight: 600;
+    color: var(--text-dim);
+    background: var(--bg-soft);
+  }
+</style>

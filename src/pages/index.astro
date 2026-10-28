@@ -5,7 +5,9 @@ import ExperienceCard from "../components/ExperienceCard.astro";
 import ResearchCard from "../components/ResearchCard.astro";
 import CircleCard from "../components/CircleCard.astro";
 import ProfileCard from "../components/ProfileCard.astro";
+import CompetitiveCard from "../components/CompetitiveCard.astro";
 import profile from "../data/profile.json";
+import competitiveList from "../data/competitive.json";
 import works from "../data/works.json";
 import experiences from "../data/experiences.json";
 import researchList from "../data/research.json";
@@ -16,6 +18,7 @@ const byFeatured = (a, b) => Number(b.featured) - Number(a.featured) || b.year -
 const sorted = [...works].sort(byFeatured);
 const sortedResearch = [...researchList].sort(byFeatured);
 const sortedCircle = [...circleList].sort(byFeatured);
+const contestCount = competitiveList.reduce((sum, c) => sum + c.history.length, 0);
 const allTags = [
   ...new Set([
     ...works.flatMap((w) => w.tags),
@@ -40,6 +43,7 @@ const allTags = [
         <a class="btn btn-ghost" href="#works">作品を見る ↓</a>
         <a class="btn btn-ghost" href="#research">研究を見る ↓</a>
         <a class="btn btn-ghost" href="#circle">サークル活動を見る ↓</a>
+        <a class="btn btn-ghost" href="#competitive">競プロを見る ↓</a>
         <a class="btn btn-ghost" href="#experience">経験を見る ↓</a>
       </div>
       <div class="skill-strip">
@@ -81,6 +85,16 @@ const allTags = [
       </div>
       <div class="grid">
         {sortedCircle.map((c) => <CircleCard circle={c} />)}
+      </div>
+    </section>
+
+    <section id="competitive" class="container">
+      <div class="section-head">
+        <h2>Competitive Programming</h2>
+        <span class="count">{contestCount} contests</span>
+      </div>
+      <div class="grid">
+        {competitiveList.map((c) => <CompetitiveCard item={c} />)}
       </div>
     </section>
 
@@ -163,6 +177,7 @@ const allTags = [
     font-family: "JetBrains Mono", monospace;
     font-size: 14px;
     color: var(--text-dim);
+    white-space: nowrap;
   }
   .grid {
     display: grid;
@@ -170,6 +185,7 @@ const allTags = [
     gap: 22px;
   }
   #works,
+  #competitive,
   #research,
   #experience,
   #circle {

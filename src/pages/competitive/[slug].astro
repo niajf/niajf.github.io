@@ -1,0 +1,400 @@
+---
+import Base from "../../layouts/Base.astro";
+import RichText from "../../components/RichText.astro";
+import RatingChart from "../../components/RatingChart.astro";
+import competitiveList from "../../data/competitive.json";
+import { summarize } from "../../utils/atcoder.js";
+
+export function getStaticPaths() {
+  return competitiveList.map((item) => ({
+    params: { slug: item.slug },
+    props: { item },
+  }));
+}
+
+const { item } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const s = summarize(item);
+const metrics = [
+  { value: s.rating, label: "現在のレーティング", note: `${s.color.name}色` },
+  { value: s.maxPerf, label: "最高パフォーマンス", note: s.maxPerfContest },
+  { value: s.contests, unit: "回", label: "コンテスト参加", note: `うちレート対象 ${s.ratedContests}回` },
+  { value: s.reviews, unit: "件", label: "振り返りの記録", note: "GitHub の issue に記録" },
+];
+const rate = item.solveRate;
+const percent = (p) => Math.round((p.solved / p.total) * 100);
+const breakdown = item.results.map((r) => `${r.label} ${r.count}件`).join("、");
+const sections = item.sections ?? [];
+const pad = (n) => String(n).padStart(2, "0");
+---
+
+<Base title={item.title} description={item.summary}>
+  <main class="container">
+    <a class="back" href={`${base}/#competitive`}>← Competitive Programming に戻る</a>
+
+    <header class="head">
+      <p class="meta">
+        <span class="yr">{item.period}</span>
+        <span class="platform">{item.platform}</span>
+      </p>
+      <h1>{item.title}</h1>
+      {item.summary && <p class="lead summary"><RichText text={item.summary} /></p>}
+      <div class="tags">
+        {item.tags.map((t) => <span class="tag">{t}</span>)}
+      </div>
+      {
+        item.links?.length > 0 && (
+          <div class="actions">
+            {item.links.map((l, i) => (
+              <a class:list={["btn", i === 0 ? "btn-primary" : "btn-ghost"]} href={l.url} target="_blank" rel="noopener">
+                {l.label}
+              </a>
+            ))}
+          </div>
+        )
+      }
+    </header>
+
+    <section class="block">
+      <div class="metrics">
+        {
+          metrics.map((m) => (
+            <div class="metric">
+              <p class="metric-value">
+                {m.value}
+                {m.unit && <span class="metric-unit">{m.unit}</span>}
+              </p>
+              <p class="metric-label">{m.label}</p>
+              {m.note && <p class="metric-note">{m.note}</p>}
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>レーティングの推移</h2>
+      <p class="lead">
+        レート対象の{s.ratedContests}回のコンテストの推移です。点にカーソルを合わせると、各回のパフォーマンスを確認できます。
+      </p>
+      <RatingChart history={item.history} />
+    </section>
+
+    {
+      rate && (
+        <section class="block">
+          <h2>{rate.title}</h2>
+          {rate.summary && (
+            <p class="lead">
+              <RichText text={rate.summary} />
+            </p>
+          )}
+          <ul class="meters">
+            {rate.phases.map((p) => (
+              <li class="meter">
+                <div class="meter-head">
+                  <span class="meter-label">{p.label}</span>
+                  <span class="badge">{p.period}</span>
+                  <span class="meter-value">
+                    {percent(p)}%<span class="meter-count">（{p.solved}/{p.total}問）</span>
+                  </span>
+                </div>
+                <div class="meter-track">
+                  <div class="meter-fill" style={`width:${percent(p)}%`} />
+                </div>
+              </li>
+            ))}
+          </ul>
+          <p class="note">{`※ 振り返りを記録した${s.reviews}件の内訳：${breakdown}。${rate.note ?? ""}`}</p>
+        </section>
+      )
+    }
+
+    {
+      sections.map((sec) => (
+        <section class="block">
+          <h2>
+            <RichText text={sec.title} />
+          </h2>
+          {sec.summary && (
+            <p class="lead">
+              <RichText text={sec.summary} />
+            </p>
+          )}
+          {sec.steps && (
+            <ol class="steps">
+              {sec.steps.map((st, i) => (
+                <li class="step">
+                  <div class="step-head">
+                    <span class="step-num">{pad(i + 1)}</span>
+                    <h3>
+                      <RichText text={st.title} />
+                    </h3>
+                    {st.date && <span class="badge">{st.date}</span>}
+                  </div>
+                  <p>
+                    <RichText text={st.text} />
+                  </p>
+                </li>
+              ))}
+            </ol>
+          )}
+          {sec.cards && (
+            <div class="cards">
+              {sec.cards.map((c) => (
+                <div class="info-card">
+                  <h3>
+                    <RichText text={c.title} />
+                  </h3>
+                  <p>
+                    <RichText text={c.text} />
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      ))
+    }
+
+    <a class="back back-bottom" href={`${base}/#competitive`}>← Competitive Programming に戻る</a>
+  </main>
+</Base>
+
+<style>
+  main {
+    padding: 48px 24px 100px;
+    max-width: 820px;
+  }
+  .back {
+    display: inline-block;
+    color: var(--text-dim);
+    font-size: 14px;
+    margin-bottom: 40px;
+    transition: color 0.15s ease;
+  }
+  .back:hover {
+    color: var(--accent);
+  }
+  .back-bottom {
+    margin: 8px 0 0;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    width: 100%;
+  }
+  .head {
+    margin-bottom: 40px;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 14px;
+  }
+  .yr {
+    font-family: "JetBrains Mono", monospace;
+    color: var(--accent);
+  }
+  .platform {
+    color: var(--accent-2);
+    font-weight: 600;
+  }
+  h1 {
+    font-size: clamp(26px, 4.5vw, 38px);
+    font-weight: 700;
+    line-height: 1.35;
+    margin-top: 6px;
+  }
+  .summary {
+    margin-top: 14px;
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 18px;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 24px;
+  }
+  .block {
+    margin-bottom: 48px;
+  }
+  h2 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    padding-left: 12px;
+    border-left: 3px solid var(--accent);
+  }
+  .lead {
+    font-size: 16px;
+    line-height: 1.85;
+  }
+  .block .lead + * {
+    margin-top: 20px;
+  }
+  .note {
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--text-dim);
+  }
+
+  /* 数字のまとめ */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
+    gap: 12px;
+  }
+  .metric {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+  }
+  .metric-value {
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: 0;
+    color: var(--accent);
+  }
+  .metric-unit {
+    font-size: 18px;
+    margin-left: 3px;
+  }
+  .metric-label {
+    font-size: 15px;
+    font-weight: 700;
+    word-break: auto-phrase;
+  }
+  .metric-note {
+    font-size: 14px;
+    color: var(--text-dim);
+    word-break: auto-phrase;
+  }
+
+  /* 自力で解けた割合 */
+  .meters {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 20px;
+  }
+  .meter-head {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    margin-bottom: 8px;
+  }
+  .meter-label {
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .meter-value {
+    margin-left: auto;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .meter-count {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-dim);
+    margin-left: 2px;
+  }
+  .meter-track {
+    height: 12px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    overflow: hidden;
+  }
+  .meter-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--accent);
+  }
+
+  /* 学習の進め方 */
+  .steps {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .step {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
+  .step-head {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    margin-bottom: 6px;
+  }
+  .step-head h3 {
+    font-size: 17px;
+    font-weight: 700;
+  }
+  .step-num {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 14px;
+    color: var(--accent);
+  }
+  .step p {
+    font-size: 15px;
+    line-height: 1.85;
+  }
+  .badge {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 1px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+    color: var(--tag-text);
+    background: var(--tag-bg);
+    border: 1px solid var(--tag-border);
+  }
+
+  /* ゲーム開発に活かせること */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    gap: 12px;
+  }
+  .info-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+  }
+  .info-card h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .info-card p {
+    font-size: 15px;
+    line-height: 1.8;
+  }
+</style>
